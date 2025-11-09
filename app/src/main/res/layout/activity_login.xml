@@ -93,7 +93,7 @@
         android:layout_marginEnd="16dp"
         android:backgroundTint="#FFFFFF"
         android:text="Login"
-        android:textColor="#18F55A"
+        android:textColor="#000000"
         app:layout_constraintEnd_toStartOf="@id/btnRegister"
         app:layout_constraintStart_toStartOf="@id/tvPasswordLabel"
         app:layout_constraintTop_toBottomOf="@id/edtPassword" />
@@ -104,7 +104,7 @@
         android:layout_height="wrap_content"
         android:text="Register"
         android:backgroundTint="#FFFFFF"
-        android:textColor="#FAEA39"
+        android:textColor="#000000"
         app:layout_constraintTop_toTopOf="@id/btnLogin"
         app:layout_constraintStart_toEndOf="@id/btnLogin"
         app:layout_constraintEnd_toEndOf="@id/edtPassword" />
