@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:title="Home"
+            android:id="@+id/menu_home"
+            android:icon="@drawable/home" />
+
+        <item
+            android:title="Budget"
+            android:id="@+id/menu_budget"
+            android:icon="@drawable/budget" />
+
+        <item
+            android:title="Expenses"
+            android:id="@+id/menu_expenses"
+            android:icon="@drawable/expenses" />
+
+        <item
+            android:title="Report"
+            android:id="@+id/menu_report"
+            android:icon="@drawable/reportbudget" />
+
+        <item
+            android:title="Setting"
+            android:id="@+id/menu_setting"
+            android:icon="@drawable/setting" />
+    </group>
+
+    <item android:title="Others"  android:icon="@drawable/other" >
+        <menu>
+            <item
+                android:title=": Dangpt"
+                android:id="@+id/tvAccount"
+                android:icon="@drawable/hello" />  <!-- dùng icon tròn đẹp hơn -->
+
+            <item
+                android:title="Profile"
+                android:id="@+id/menu_profile"
+                android:icon="@drawable/profile" />
+
+            <item
+                android:title="Logout"
+                android:id="@+id/menu_Logout"
+                android:icon="@drawable/logout" />
+        </menu>
+    </item>
+</menu>

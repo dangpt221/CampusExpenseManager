@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:title="Home"
+        android:id="@+id/menu_home"
+        android:icon="@drawable/home"/>
+    <item
+        android:title="Budget"
+        android:id="@+id/menu_budget"
+        android:icon="@drawable/budget"/>
+    <item
+        android:title="Expenses"
+        android:id="@+id/menu_expenses"
+        android:icon="@drawable/expenses" />
+    <item
+        android:title="Report"
+        android:id="@+id/menu_report"
+        android:icon="@drawable/reportbudget"/>
+    <item
+        android:title="Setting"
+        android:id="@+id/menu_setting"
+        android:icon="@drawable/setting"/>
+</menu>
