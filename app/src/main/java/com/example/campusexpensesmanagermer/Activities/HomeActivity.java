@@ -1,8 +1,10 @@
 package com.example.campusexpensesmanagermer.Activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -20,20 +22,24 @@ import com.example.campusexpensesmanagermer.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 
-class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+    private static final String PREFS_NAME = "CampusExpensesPrefs";
+    private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
+    private static final String KEY_USERNAME = "username";
+
     BottomNavigationView bottomNavigationView;
     DrawerLayout drawerLayout;
     ViewPager2 viewPager2;
     Toolbar toolbar;
     NavigationView navigationView;
-    Intent intentHome;
-    Bundle bundleHome;
-    String username;
+    SharedPreferences prefs;
 
     @Override
     protected void onStart() {
         super.onStart();
-        if (bundleHome == null || username == null){
+        // Check persistent session
+        if (!isLoggedIn()) {
+            Log.d("HomeDebug", "Not logged in, redirecting to Login");
             Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
@@ -44,67 +50,88 @@ class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigat
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         drawerLayout = findViewById(R.id.drawerLayout);
         viewPager2 = findViewById(R.id.viewPager);
         toolbar = findViewById(R.id.toolbar);
         navigationView = findViewById(R.id.navigationView);
-        intentHome = getIntent();
-        bundleHome = intentHome.getExtras();
-        if (bundleHome != null) {
-            username = bundleHome.getString("ACCOUNT","");
+
+        // Retrieve username from prefs or intent (for initial setup)
+        String username = prefs.getString(KEY_USERNAME, "");
+        if (TextUtils.isEmpty(username)) {
+            // Fallback to intent if not in prefs
+            Intent intentHome = getIntent();
+            Bundle bundleHome = intentHome.getExtras();
+            if (bundleHome != null) {
+                username = bundleHome.getString("ACCOUNT", "");
+                if (!TextUtils.isEmpty(username)) {
+                    saveLoginState(username); // Persist it
+                    Log.d("HomeDebug", "Saved username from intent: " + username);
+                }
+            }
         }
-        // xu ly hien thi drawer menu
+
+        Log.d("HomeDebug", "Username: '" + username + "', IsLoggedIn: " + isLoggedIn());
+
+        if (TextUtils.isEmpty(username) || !isLoggedIn()) {
+            Log.d("HomeDebug", "Redirecting to Login: Missing data");
+            Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+            return; // Dừng setup UI
+        }
+
+        // Xu ly hien thi drawer menu
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
                 R.string.open_nav, R.string.close_nav);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
+
         // Xu ly khi bam menu bottom navigation
         setupViewPager();
         bottomNavigationView.setOnItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.menu_home){
-                viewPager2.setCurrentItem(0);
+            int page = 0;
+            if (item.getItemId() == R.id.menu_home) {
+                page = 0;
             } else if (item.getItemId() == R.id.menu_budget) {
-                viewPager2.setCurrentItem(1);
+                page = 1;
             } else if (item.getItemId() == R.id.menu_expenses) {
-                viewPager2.setCurrentItem(2);
+                page = 2;
             } else if (item.getItemId() == R.id.menu_report) {
-                viewPager2.setCurrentItem(3);
+                page = 3;
             } else if (item.getItemId() == R.id.menu_profile) {
-                viewPager2.setCurrentItem(5);
+                page = 4; // Fixed: Match drawer
             } else if (item.getItemId() == R.id.menu_setting) {
-                viewPager2.setCurrentItem(6);
+                page = 5; // Fixed: Match drawer
             } else {
-                viewPager2.setCurrentItem(0);
+                page = 0;
             }
-            return true ;
+            viewPager2.setCurrentItem(page);
+            return true;
         });
-        // xu ly logout App
+
+        // Xu ly logout App
         Menu menu = navigationView.getMenu();
         MenuItem logout = menu.findItem(R.id.menu_Logout);
         MenuItem account = menu.findItem(R.id.tvAccount);
-        if (!TextUtils.isEmpty(username)){
-            account.setTitle("Hi: "+ username);
+        if (!TextUtils.isEmpty(username)) {
+            account.setTitle("Hi: " + username);
         }
         logout.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(@NonNull MenuItem item) {
                 drawerLayout.closeDrawer(GravityCompat.START);
-                //quay ve tran login
-                if (bundleHome != null){
-                    intentHome.removeExtra("ACCOUNT");
-                    intentHome.removeExtra("EMAIL");
-                    intentHome.removeExtra("ID_USER");
-                    intentHome.removeExtra("AGe_USER");
-                }
-                Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
-                finish();
-                return false;
+                logoutUser();
+                return true; // Fixed: Return true for proper handling
             }
         });
     }
-    private void setupViewPager(){
+
+    private void setupViewPager() {
         ViewPagerApdapter apdapter = new ViewPagerApdapter(getSupportFragmentManager(), getLifecycle());
         viewPager2.setAdapter(apdapter);
         viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
@@ -116,20 +143,24 @@ class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigat
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
+                MenuItem item = null;
                 if (position == 0) {
-                    bottomNavigationView.getMenu().findItem(R.id.menu_home).setChecked(true);
+                    item = bottomNavigationView.getMenu().findItem(R.id.menu_home);
                 } else if (position == 1) {
-                    bottomNavigationView.getMenu().findItem(R.id.menu_budget).setChecked(true);
+                    item = bottomNavigationView.getMenu().findItem(R.id.menu_budget);
                 } else if (position == 2) {
-                    bottomNavigationView.getMenu().findItem(R.id.menu_expenses).setChecked(true);
+                    item = bottomNavigationView.getMenu().findItem(R.id.menu_expenses);
                 } else if (position == 3) {
-                    bottomNavigationView.getMenu().findItem(R.id.menu_report).setChecked(true);
+                    item = bottomNavigationView.getMenu().findItem(R.id.menu_report);
                 } else if (position == 4) {
-                    bottomNavigationView.getMenu().findItem(R.id.menu_profile).setChecked(true);
+                    item = bottomNavigationView.getMenu().findItem(R.id.menu_profile);
                 } else if (position == 5) {
-                    bottomNavigationView.getMenu().findItem(R.id.menu_setting).setChecked(true);
-                } else  {
-                    bottomNavigationView.getMenu().findItem(R.id.menu_home).setChecked(true);
+                    item = bottomNavigationView.getMenu().findItem(R.id.menu_setting);
+                } else {
+                    item = bottomNavigationView.getMenu().findItem(R.id.menu_home);
+                }
+                if (item != null) {
+                    item.setChecked(true);
                 }
             }
 
@@ -142,20 +173,43 @@ class HomeActivity extends AppCompatActivity implements NavigationView.OnNavigat
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        if (menuItem.getItemId() == R.id.menu_home){
-            viewPager2.setCurrentItem(0);
-        } else if ( menuItem.getItemId() == R.id.menu_budget) {
-            viewPager2.setCurrentItem(1);
+        int page = 0;
+        if (menuItem.getItemId() == R.id.menu_home) {
+            page = 0;
+        } else if (menuItem.getItemId() == R.id.menu_budget) {
+            page = 1;
         } else if (menuItem.getItemId() == R.id.menu_expenses) {
-            viewPager2.setCurrentItem(2);
+            page = 2;
         } else if (menuItem.getItemId() == R.id.menu_report) {
-            viewPager2.setCurrentItem(3);
+            page = 3;
         } else if (menuItem.getItemId() == R.id.menu_profile) {
-            viewPager2.setCurrentItem(4);
-        } else if (menuItem.getItemId() == R.id.menu_setting){
-            viewPager2.setCurrentItem(5);
+            page = 4;
+        } else if (menuItem.getItemId() == R.id.menu_setting) {
+            page = 5;
         }
-        drawerLayout.closeDrawer(GravityCompat.START);// dong laij
+        viewPager2.setCurrentItem(page);
+        drawerLayout.closeDrawer(GravityCompat.START); // Dong lai
         return true;
+    }
+
+    private boolean isLoggedIn() {
+        return prefs.getBoolean(KEY_IS_LOGGED_IN, false);
+    }
+
+    private void saveLoginState(String username) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(KEY_IS_LOGGED_IN, true);
+        editor.putString(KEY_USERNAME, username);
+        editor.apply();
+    }
+
+    private void logoutUser() {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.clear(); // Clear all prefs
+        editor.apply();
+        Log.d("HomeDebug", "Logged out, redirecting to Login");
+        Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

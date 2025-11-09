@@ -33,8 +33,6 @@ public class ViewPagerApdapter extends FragmentStateAdapter {
         } else if (position == 4) {
             return new ProfileFragment();
         } else if (position == 5) {
-            return new ReportFragment();
-        } else if (position == 6) {
             return new SettingFragment();
         }else {
             return new HomeFragment();
