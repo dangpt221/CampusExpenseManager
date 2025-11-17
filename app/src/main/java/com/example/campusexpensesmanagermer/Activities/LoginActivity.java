@@ -20,7 +20,7 @@ import com.example.campusexpensesmanagermer.Repositories.UserRepository;
 public class LoginActivity extends AppCompatActivity {
     EditText edtUsername, edtPassword;
     Button btnLogin, btnCancel;
-    TextView tvRegister;
+    TextView tvRegister, tvForgetpassword;
     UserRepository userRepository;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -33,6 +33,16 @@ public class LoginActivity extends AppCompatActivity {
         btnCancel = findViewById(R.id.btnCancel);
         btnLogin  = findViewById(R.id.btnLogin);
         tvRegister= findViewById(R.id.tvRegisterAccount);
+        tvForgetpassword = findViewById(R.id.tvForgetpassword);
+
+        // bat su kien nguoi dung chuyen sang form lay lai mat khau
+        tvForgetpassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
         // bat su kien nguoi chuyen chuyen sang dang ky tai khoan
         tvRegister.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -41,6 +51,7 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(register);
             }
         });
+
         // bat su kien - khi nguoi dung bam vao button Login
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,6 +82,13 @@ public class LoginActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(LoginActivity.this, "Account invalid", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+        // bat su kien khi nguoi dung bam vao button Cancel
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
     }
