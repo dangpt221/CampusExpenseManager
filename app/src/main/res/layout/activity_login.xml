@@ -120,19 +120,19 @@
         android:text="Register an account"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="10dp"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="#08A2E9" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Forget password ?"
+        android:text="Forgot password ?"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="10dp"
         android:textSize="16sp"
         android:textStyle="bold|italic"
         android:textColor="#03A9F4"
-        android:id="@+id/tvForgetpassword"/>
+        android:id="@+id/tvForgotpassword"/>
 
 </LinearLayout>

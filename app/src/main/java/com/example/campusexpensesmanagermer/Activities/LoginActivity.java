@@ -33,15 +33,10 @@ public class LoginActivity extends AppCompatActivity {
         btnCancel = findViewById(R.id.btnCancel);
         btnLogin  = findViewById(R.id.btnLogin);
         tvRegister= findViewById(R.id.tvRegisterAccount);
-        tvForgetpassword = findViewById(R.id.tvForgetpassword);
+        tvForgetpassword = findViewById(R.id.tvForgotpassword);
 
         // bat su kien nguoi dung chuyen sang form lay lai mat khau
-        tvForgetpassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-            }
-        });
 
         // bat su kien nguoi chuyen chuyen sang dang ky tai khoan
         tvRegister.setOnClickListener(new View.OnClickListener() {

@@ -13,6 +13,7 @@
         android:theme="@style/Theme.CampusExpensesManagermer">
         <activity android:name=".Activities.LoginActivity"/>
         <activity android:name=".Activities.RegisterActivity"/>
+      
         <activity
             android:name=".Activities.HomeActivity"
             android:exported="true">
