@@ -8,9 +8,9 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.campusexpensesmanagermer.Fragments.BudgetFragment;
 import com.example.campusexpensesmanagermer.Fragments.ExpenseFragment;
+import com.example.campusexpensesmanagermer.Fragments.HomeFragment;
 import com.example.campusexpensesmanagermer.Fragments.SettingFragment;
 import com.example.campusexpensesmanagermer.Fragments.ProfileFragment;
-import com.example.campusexpensesmanagermer.Fragments.HomeFragment;
 import com.example.campusexpensesmanagermer.Fragments.ReportFragment;
 
 

@@ -84,24 +84,24 @@
         app:layout_constraintEnd_toEndOf="@id/edtUserName" />
 
     <TextView
-        android:id="@+id/tvRePasswordLabel"
+        android:id="@+id/tvPhone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Re-enter" android:textColor="@android:color/black"
+        android:text="Phone" android:textColor="@android:color/black"
         android:textSize="18sp"
 
         app:layout_constraintStart_toStartOf="@id/tvUserNameLabel"
-        app:layout_constraintTop_toTopOf="@id/edt_re_password"
-        app:layout_constraintBottom_toBottomOf="@id/edt_re_password"
+        app:layout_constraintTop_toTopOf="@id/edtPhone"
+        app:layout_constraintBottom_toBottomOf="@id/edtPhone"
         />
 
     <EditText
-        android:id="@+id/edt_re_password"
+        android:id="@+id/edtPhone"
         android:layout_width="0dp"
         android:layout_height="48dp"
         android:background="#FFFFFF"
         android:inputType="textPassword"
-        android:hint="Re-enter password"
+        android:hint="EnterPhone"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:layout_marginTop="24dp"
@@ -129,19 +129,21 @@
         android:hint="Enter Email " android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@id/edt_re_password"
-        app:layout_constraintStart_toStartOf="@id/edt_re_password"
-        app:layout_constraintEnd_toEndOf="@id/edt_re_password" />
+        app:layout_constraintTop_toBottomOf="@id/edtPhone"
+        app:layout_constraintStart_toStartOf="@id/edtPhone"
+        app:layout_constraintEnd_toEndOf="@id/edtPhone" />
+
 
     <Button
-        android:id="@+id/btnCreate"
+        android:id="@+id/btnRegisterform"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Create"
+        android:text="Register"
         android:backgroundTint="#FFFFFF"
         android:textColor="@android:color/black"
         android:layout_marginTop="32dp"
-        android:layout_marginEnd="8dp" app:layout_constraintTop_toBottomOf="@id/edtEmail"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintTop_toBottomOf="@id/edtEmail"
         app:layout_constraintStart_toStartOf="@id/tvUserNameLabel"
         app:layout_constraintEnd_toStartOf="@id/btnBack" />
 
@@ -150,8 +152,24 @@
         android:text="Back"
         android:backgroundTint="#FFFFFF"
         android:textColor="@android:color/black"
-        android:layout_marginStart="8dp" app:layout_constraintTop_toTopOf="@id/btnCreate"
-        app:layout_constraintStart_toEndOf="@id/btnCreate"
+        android:layout_marginStart="8dp"
+        app:layout_constraintTop_toTopOf="@id/btnRegisterform"
+        app:layout_constraintStart_toEndOf="@id/btnRegisterform"
         app:layout_constraintEnd_toEndOf="@id/edtEmail" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Login Account"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:textSize="16sp"
+        android:textStyle="bold|italic"
+        android:textColor="#03A9F4"
+        android:id="@+id/tvLoginAccount"
+        app:layout_constraintStart_toStartOf="@id/tvUserNameLabel"
+        app:layout_constraintEnd_toEndOf="@id/edtEmail"
+        tools:ignore="MissingConstraints" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

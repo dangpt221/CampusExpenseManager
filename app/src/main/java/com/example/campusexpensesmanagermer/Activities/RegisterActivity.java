@@ -29,7 +29,7 @@ public class RegisterActivity extends AppCompatActivity {
         edtUsername = findViewById(R.id.edtUserName);
         edtPassword = findViewById(R.id.edtPassword);
         edtEmail    = findViewById(R.id.edtEmail);
-        edtPhone    = findViewById(R.id.edtPhonenumber);
+        edtPhone    = findViewById(R.id.edtPhone);
         btnRegister = findViewById(R.id.btnRegisterform);
         btnBack   = findViewById(R.id.btnBack);
         tvLoginAccount = findViewById(R.id.tvLoginAccount);
