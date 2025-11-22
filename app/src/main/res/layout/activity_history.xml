@@ -24,7 +24,7 @@
         <Button
             android:id="@+id/btn_back"
             android:layout_width="wrap_content"
-            android:layout_height="36dp"
+            android:layout_height="40dp"
             android:text="Quay lại"
             android:textColor="@android:color/black"
             android:background="@android:color/transparent"
@@ -59,9 +59,9 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <ImageButton
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_arrow_back_black_24dp"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/left"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Tháng trước"
             tools:ignore="HardcodedText" />
@@ -71,19 +71,18 @@
         <TextView
             android:id="@+id/tvThisMonth"
             android:layout_width="wrap_content"
-            android:layout_height="32dp"
+            android:layout_height="wrap_content"
             android:clickable="true"
-            android:drawableEnd="@drawable/ic_arrow_down"
             android:focusable="true"
-            android:padding="8dp"
+            android:padding="10dp"
             android:text="This month"
             android:textSize="16sp"
             android:textStyle="bold" />
 
         <ImageButton
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_arrow_forward_black_24dp"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/right"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Tháng sau"
             tools:ignore="HardcodedText" />
@@ -177,8 +176,7 @@
                         android:text="- 1.000.000₫"
                         android:textColor="@android:color/black"
                         android:textSize="16sp"
-                        android:textStyle="bold"
-                        tools:background="@drawable/red_rounded_background" />
+                        android:textStyle="bold"/>
                 </LinearLayout>
             </LinearLayout>
 
@@ -235,7 +233,7 @@
                         android:textColor="@android:color/black"
                         android:textSize="16sp"
                         android:textStyle="bold"
-                        tools:background="@drawable/green_rounded_background" />
+                        tools:background="@color/white" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -260,7 +258,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:src="@drawable/ic_home_black_24dp"
+            android:src="@drawable/home"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Trang chủ"/>
 
@@ -269,7 +267,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:src="@drawable/ic_account_balance_wallet_black_24dp"
+            android:src="@drawable/wallet"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Ví"/>
 
@@ -278,16 +276,16 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:src="@drawable/ic_history_black_24dp"
-            android:background="@android:color/white" <!-- Đã đổi từ #E0E0E0 sang màu trắng -->
-        android:contentDescription="Lịch sử"/>
+            android:src="@drawable/history"
+            android:background="@android:color/white"
+            android:contentDescription="History"/>
 
         <!-- Cá nhân -->
         <ImageButton
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:src="@drawable/ic_person_black_24dp"
+            android:src="@drawable/user"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Cá nhân"/>
     </LinearLayout>
