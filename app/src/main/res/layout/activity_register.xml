@@ -113,9 +113,10 @@
         android:id="@+id/tvEmailLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Email" android:textColor="@android:color/black"
+        android:text="Email"
+        android:textColor="@android:color/black"
         android:textSize="18sp"
-
+        android:inputType="textEmailAddress"
         app:layout_constraintStart_toStartOf="@id/tvUserNameLabel"
         app:layout_constraintTop_toTopOf="@id/edtEmail"
         app:layout_constraintBottom_toBottomOf="@id/edtEmail"/>
@@ -159,17 +160,20 @@
 
 
     <TextView
+        android:id="@+id/tvLoginAccount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Login Account"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="10dp"
+        android:text="Login Account"
+        android:textColor="#03A9F4"
         android:textSize="16sp"
         android:textStyle="bold|italic"
-        android:textColor="#03A9F4"
-        android:id="@+id/tvLoginAccount"
-        app:layout_constraintStart_toStartOf="@id/tvUserNameLabel"
         app:layout_constraintEnd_toEndOf="@id/edtEmail"
-        tools:ignore="MissingConstraints" />
+        app:layout_constraintHorizontal_bias="0.532"
+        app:layout_constraintStart_toStartOf="@id/tvUserNameLabel"
+        tools:ignore="MissingConstraints"
+        tools:layout_editor_absoluteY="-9dp"
+        app:layout_constraintTop_toBottomOf="@+id/btnRegisterform"
+        android:layout_marginTop="10dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
