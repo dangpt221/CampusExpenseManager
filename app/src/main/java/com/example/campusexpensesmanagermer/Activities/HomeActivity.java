@@ -101,14 +101,12 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 page = 1;
             } else if (item.getItemId() == R.id.menu_budget) {
                 page = 2;
-            } else if (item.getItemId() == R.id.menu_express) {
-                page = 3;
             } else if (item.getItemId() == R.id.menu_reportbudget) {
-                page = 4;
+                page = 3;
             } else if (item.getItemId() == R.id.menu_profile) {
-                page = 5;
+                page = 4;
             } else if (item.getItemId() == R.id.menu_setting) {
-                page = 6;
+                page = 5;
             } else {
                 page = 0;
             }
@@ -157,15 +155,12 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                         item = bottomNavigationView.getMenu().findItem(R.id.menu_budget);
                         break;
                     case 3:
-                        item = bottomNavigationView.getMenu().findItem(R.id.menu_express);
-                        break;
-                    case 4:
                         item = bottomNavigationView.getMenu().findItem(R.id.menu_reportbudget);
                         break;
-                    case 5:
+                    case 4:
                         item = bottomNavigationView.getMenu().findItem(R.id.menu_profile);
                         break;
-                    case 6:
+                    case 5:
                         item = bottomNavigationView.getMenu().findItem(R.id.menu_setting);
                         break;
                 }
@@ -190,14 +185,12 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             page = 1;
         } else if (menuItem.getItemId() == R.id.menu_budget) {
             page = 2;
-        } else if (menuItem.getItemId() == R.id.menu_express) {
-            page = 3;
         } else if (menuItem.getItemId() == R.id.menu_reportbudget) {
-            page = 4;
+            page = 3;
         } else if (menuItem.getItemId() == R.id.menu_profile) {
-            page = 5;
+            page = 4;
         } else if (menuItem.getItemId() == R.id.menu_setting) {
-            page = 6;
+            page = 5;
         }
         viewPager2.setCurrentItem(page);
         drawerLayout.closeDrawer(GravityCompat.START);

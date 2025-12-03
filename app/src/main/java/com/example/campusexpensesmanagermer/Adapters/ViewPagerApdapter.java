@@ -25,9 +25,9 @@ public class ViewPagerApdapter extends FragmentStateAdapter {
         if (position == 0){
             return new HomeFragment();
         } else if (position ==1) {
-            return new BudgetFragment();
-        } else if (position == 2) {
             return new ExpressFragment();
+        } else if (position == 2) {
+            return new BudgetFragment();
         } else if (position == 3) {
             return new ReportFragment();
         } else if (position == 4) {
