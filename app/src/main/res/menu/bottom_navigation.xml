@@ -5,16 +5,16 @@
         android:id="@+id/menu_home"
         android:icon="@drawable/home"/>
     <item
+        android:title="Express"
+        android:id="@+id/menu_express"
+        android:icon="@drawable/express" />
+    <item
         android:title="Budget"
         android:id="@+id/menu_budget"
         android:icon="@drawable/budget"/>
     <item
-        android:title="Expenses"
-        android:id="@+id/menu_expenses"
-        android:icon="@drawable/expenses" />
-    <item
         android:title="Report"
-        android:id="@+id/menu_report"
+        android:id="@+id/menu_reportbudget"
         android:icon="@drawable/reportbudget"/>
     <item
         android:title="Setting"

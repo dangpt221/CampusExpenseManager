@@ -97,16 +97,18 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             int page = 0;
             if (item.getItemId() == R.id.menu_home) {
                 page = 0;
-            } else if (item.getItemId() == R.id.menu_budget) {
+            } else if (item.getItemId() == R.id.menu_express) {
                 page = 1;
-            } else if (item.getItemId() == R.id.menu_expenses) {
+            } else if (item.getItemId() == R.id.menu_budget) {
                 page = 2;
-            } else if (item.getItemId() == R.id.menu_report) {
+            } else if (item.getItemId() == R.id.menu_express) {
                 page = 3;
+            } else if (item.getItemId() == R.id.menu_reportbudget) {
+                page = 4;
             } else if (item.getItemId() == R.id.menu_profile) {
-                page = 4; // Fixed: Match drawer
+                page = 5;
             } else if (item.getItemId() == R.id.menu_setting) {
-                page = 5; // Fixed: Match drawer
+                page = 6;
             } else {
                 page = 0;
             }
@@ -126,7 +128,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             public boolean onMenuItemClick(@NonNull MenuItem item) {
                 drawerLayout.closeDrawer(GravityCompat.START);
                 logoutUser();
-                return true; // Fixed: Return true for proper handling
+                return true;
             }
         });
     }
@@ -144,20 +146,28 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 MenuItem item = null;
-                if (position == 0) {
-                    item = bottomNavigationView.getMenu().findItem(R.id.menu_home);
-                } else if (position == 1) {
-                    item = bottomNavigationView.getMenu().findItem(R.id.menu_budget);
-                } else if (position == 2) {
-                    item = bottomNavigationView.getMenu().findItem(R.id.menu_expenses);
-                } else if (position == 3) {
-                    item = bottomNavigationView.getMenu().findItem(R.id.menu_report);
-                } else if (position == 4) {
-                    item = bottomNavigationView.getMenu().findItem(R.id.menu_profile);
-                } else if (position == 5) {
-                    item = bottomNavigationView.getMenu().findItem(R.id.menu_setting);
-                } else {
-                    item = bottomNavigationView.getMenu().findItem(R.id.menu_home);
+                switch (position) {
+                    case 0:
+                        item = bottomNavigationView.getMenu().findItem(R.id.menu_home);
+                        break;
+                    case 1:
+                        item = bottomNavigationView.getMenu().findItem(R.id.menu_express);
+                        break;
+                    case 2:
+                        item = bottomNavigationView.getMenu().findItem(R.id.menu_budget);
+                        break;
+                    case 3:
+                        item = bottomNavigationView.getMenu().findItem(R.id.menu_express);
+                        break;
+                    case 4:
+                        item = bottomNavigationView.getMenu().findItem(R.id.menu_reportbudget);
+                        break;
+                    case 5:
+                        item = bottomNavigationView.getMenu().findItem(R.id.menu_profile);
+                        break;
+                    case 6:
+                        item = bottomNavigationView.getMenu().findItem(R.id.menu_setting);
+                        break;
                 }
                 if (item != null) {
                     item.setChecked(true);
@@ -176,19 +186,21 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         int page = 0;
         if (menuItem.getItemId() == R.id.menu_home) {
             page = 0;
-        } else if (menuItem.getItemId() == R.id.menu_budget) {
+        } else if (menuItem.getItemId() == R.id.menu_express) {
             page = 1;
-        } else if (menuItem.getItemId() == R.id.menu_expenses) {
+        } else if (menuItem.getItemId() == R.id.menu_budget) {
             page = 2;
-        } else if (menuItem.getItemId() == R.id.menu_report) {
+        } else if (menuItem.getItemId() == R.id.menu_express) {
             page = 3;
-        } else if (menuItem.getItemId() == R.id.menu_profile) {
+        } else if (menuItem.getItemId() == R.id.menu_reportbudget) {
             page = 4;
-        } else if (menuItem.getItemId() == R.id.menu_setting) {
+        } else if (menuItem.getItemId() == R.id.menu_profile) {
             page = 5;
+        } else if (menuItem.getItemId() == R.id.menu_setting) {
+            page = 6;
         }
         viewPager2.setCurrentItem(page);
-        drawerLayout.closeDrawer(GravityCompat.START); // Dong lai
+        drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 

@@ -11,11 +11,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.CampusExpensesManagermer">
-        <activity android:name=".Activities.LoginActivity"/>
+        <activity android:name=".Activities.HomeActivity"/>
         <activity android:name=".Activities.RegisterActivity"/>
-      
+
         <activity
-            android:name=".Activities.HomeActivity"
+            android:name=".Activities.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

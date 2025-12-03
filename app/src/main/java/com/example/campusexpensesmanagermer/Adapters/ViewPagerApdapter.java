@@ -7,7 +7,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.example.campusexpensesmanagermer.Fragments.BudgetFragment;
-import com.example.campusexpensesmanagermer.Fragments.ExpenseFragment;
+import com.example.campusexpensesmanagermer.Fragments.ExpressFragment;
 import com.example.campusexpensesmanagermer.Fragments.HomeFragment;
 import com.example.campusexpensesmanagermer.Fragments.SettingFragment;
 import com.example.campusexpensesmanagermer.Fragments.ProfileFragment;
@@ -27,7 +27,7 @@ public class ViewPagerApdapter extends FragmentStateAdapter {
         } else if (position ==1) {
             return new BudgetFragment();
         } else if (position == 2) {
-            return new ExpenseFragment();
+            return new ExpressFragment();
         } else if (position == 3) {
             return new ReportFragment();
         } else if (position == 4) {
