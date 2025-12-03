@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.example.campusexpensesmanagermer.Data.SQLiteDbHelper;
+import com.example.campusexpensesmanagermer.Models.ExpenseReport;
 import com.example.campusexpensesmanagermer.Models.Express;
 
 import java.text.SimpleDateFormat;
@@ -222,5 +223,152 @@ public class ExpressRepository {
                 db.close();
             }
         }
+    }
+    // ==================== PHẦN BÁO CÁO - THÊM VÀO CUỐI CLASS ====================
+
+    /**
+     * Lấy tổng chi tiêu theo khoảng thời gian
+     */
+    public double getTotalExpenseByPeriod(int userId, String startDate, String endDate) {
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+        double total = 0;
+
+        try {
+            db = dbHelper.getReadableDatabase();
+
+            String query = "SELECT SUM(" + SQLiteDbHelper.AMOUNT_EXPRESS + ") as total " +
+                    "FROM " + SQLiteDbHelper.TABLE_EXPRESS +
+                    " WHERE " + SQLiteDbHelper.USER_ID_EXPRESS + " = ? " +
+                    "AND " + SQLiteDbHelper.DATE_EXPRESS + " >= ? " +
+                    "AND " + SQLiteDbHelper.DATE_EXPRESS + " <= ?";
+
+            cursor = db.rawQuery(query, new String[]{String.valueOf(userId), startDate, endDate});
+
+            if (cursor != null && cursor.moveToFirst()) {
+                total = cursor.getDouble(0);
+            }
+            Log.d(TAG, "Total for period: " + total);
+        } catch (Exception e) {
+            Log.e(TAG, "✗ Error getTotalExpenseByPeriod: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) cursor.close();
+            if (db != null) db.close();
+        }
+
+        return total;
+    }
+
+    /**
+     * Lấy báo cáo chi tiêu theo danh mục
+     */
+    public List<ExpenseReport> getExpenseReportByCategory(int userId, String startDate, String endDate) {
+        List<ExpenseReport> reportList = new ArrayList<>();
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+
+        try {
+            db = dbHelper.getReadableDatabase();
+
+            String query = "SELECT " + SQLiteDbHelper.CATEGORY_ID_EXPRESS + " as categoryName, " +
+                    "SUM(" + SQLiteDbHelper.AMOUNT_EXPRESS + ") as totalAmount, " +
+                    "COUNT(*) as transactionCount " +
+                    "FROM " + SQLiteDbHelper.TABLE_EXPRESS +
+                    " WHERE " + SQLiteDbHelper.USER_ID_EXPRESS + " = ? " +
+                    "AND " + SQLiteDbHelper.DATE_EXPRESS + " >= ? " +
+                    "AND " + SQLiteDbHelper.DATE_EXPRESS + " <= ? " +
+                    "GROUP BY " + SQLiteDbHelper.CATEGORY_ID_EXPRESS +
+                    " ORDER BY totalAmount DESC";
+
+            cursor = db.rawQuery(query, new String[]{String.valueOf(userId), startDate, endDate});
+
+            double grandTotal = getTotalExpenseByPeriod(userId, startDate, endDate);
+
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    ExpenseReport report = new ExpenseReport();
+                    report.setCategoryName(cursor.getString(0));
+                    report.setTotalAmount(cursor.getDouble(1));
+                    report.setTransactionCount(cursor.getInt(2));
+
+                    if (grandTotal > 0) {
+                        report.setPercentage((report.getTotalAmount() / grandTotal) * 100);
+                    }
+
+                    reportList.add(report);
+                }
+                Log.d(TAG, "✓ Loaded " + reportList.size() + " category reports");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "✗ Error getExpenseReportByCategory: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) cursor.close();
+            if (db != null) db.close();
+        }
+
+        return reportList;
+    }
+
+    /**
+     * Lấy top 5 chi tiêu lớn nhất
+     */
+    public List<Express> getTop5Expenses(int userId, String startDate, String endDate) {
+        List<Express> list = new ArrayList<>();
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+
+        try {
+            db = dbHelper.getReadableDatabase();
+
+            String[] columns = {
+                    SQLiteDbHelper.ID_EXPRESS,
+                    SQLiteDbHelper.TITLE_EXPRESS,
+                    SQLiteDbHelper.AMOUNT_EXPRESS,
+                    SQLiteDbHelper.CATEGORY_ID_EXPRESS,
+                    SQLiteDbHelper.USER_ID_EXPRESS,
+                    SQLiteDbHelper.DATE_EXPRESS
+            };
+
+            String selection = SQLiteDbHelper.USER_ID_EXPRESS + " = ? " +
+                    "AND " + SQLiteDbHelper.DATE_EXPRESS + " >= ? " +
+                    "AND " + SQLiteDbHelper.DATE_EXPRESS + " <= ?";
+
+            String[] selectionArgs = {String.valueOf(userId), startDate, endDate};
+
+            cursor = db.query(
+                    SQLiteDbHelper.TABLE_EXPRESS,
+                    columns,
+                    selection,
+                    selectionArgs,
+                    null,
+                    null,
+                    SQLiteDbHelper.AMOUNT_EXPRESS + " DESC",
+                    "5"
+            );
+
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    Express e = new Express();
+                    e.setId(cursor.getInt(0));
+                    e.setTitle(cursor.getString(1));
+                    e.setAmount(cursor.getDouble(2));
+                    e.setCategoryName(cursor.getString(3));
+                    e.setUserId(cursor.getInt(4));
+                    e.setDate(cursor.getString(5));
+                    list.add(e);
+                }
+                Log.d(TAG, "✓ Loaded top " + list.size() + " expenses");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "✗ Error getTop5Expenses: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) cursor.close();
+            if (db != null) db.close();
+        }
+
+        return list;
     }
 }
