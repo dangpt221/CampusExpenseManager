@@ -10,6 +10,8 @@ public class Budget {
     private String createdAt;
     private String updatedAt;
 
+    private int year;                 // năm
+    private int month;                // tháng
     private double spent;             // tiền đã chi (tính toán từ expenses)
 
     // Constructor
@@ -99,6 +101,22 @@ public class Budget {
         this.spent = spent;
     }
 
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public int getMonth() {
+        return month;
+    }
+
+    public void setMonth(int month) {
+        this.month = month;
+    }
+
     // Helper methods
     public double getRemaining() {
         return money - spent;
@@ -115,5 +133,19 @@ public class Budget {
 
     public double getAmount() {
         return money;
+    }
+
+    @Override
+    public String toString() {
+        return "Budget{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", name='" + name + '\'' +
+                ", money=" + money +
+                ", year=" + year +
+                ", month=" + month +
+                ", spent=" + spent +
+                ", status=" + status +
+                '}';
     }
 }

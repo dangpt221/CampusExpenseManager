@@ -81,7 +81,6 @@ public class AddExpressActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-
     private void saveExpress() {
         String title = edtExpenseName.getText().toString().trim();
         String amountStr = edtAmount.getText().toString().trim();

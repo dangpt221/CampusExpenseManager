@@ -9,9 +9,9 @@ import androidx.annotation.Nullable;
 public class SQLiteDbHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "campus_expense.db";
-    private static final int DB_VERSION = 5;
+    private static final int DB_VERSION = 6;  // Tăng version lên 6
 
-    // 3 cot chung
+    // 3 cột chung
     public static final String CREATED_AT = "created_at";
     public static final String UPDATED_AT = "updated_at";
     public static final String DELETED_AT = "deleted_at";
@@ -168,22 +168,72 @@ public class SQLiteDbHelper extends SQLiteOpenHelper {
                 + UPDATED_AT + " DATETIME, "
                 + "FOREIGN KEY(" + USER_ID_EXPRESS + ") REFERENCES " + TABLE_USER + "(" + ID_USER + ") ON DELETE CASCADE)";
 
-        // TODO: CREATE TABLES BUDGETS, BUDGET_ITEMS, SETTINGS, LINKED_ACCOUNTS, BACKUPS, NOTIFICATIONS, ATTACHMENTS
-        // Cách tạo giống với USERS, EXPRESS: dùng hằng số để định nghĩa tên cột
+        // CREATE TABLE BUDGETS
+        String budgetsTable = "CREATE TABLE IF NOT EXISTS " + TABLE_BUDGETS + " ("
+                + ID_BUDGET + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + USER_ID_BUDGET + " INTEGER NOT NULL, "
+                + YEAR_BUDGET + " INTEGER, "
+                + MONTH_BUDGET + " INTEGER, "
+                + TARGET_AMOUNT_BUDGET + " REAL NOT NULL, "
+                + CURRENCY_BUDGET + " TEXT DEFAULT 'VND', "
+                + NOTE_BUDGET + " TEXT, "
+                + CREATED_AT + " DATETIME DEFAULT (datetime('now')), "
+                + UPDATED_AT + " DATETIME, "
+                + "FOREIGN KEY(" + USER_ID_BUDGET + ") REFERENCES " + TABLE_USER + "(" + ID_USER + ") ON DELETE CASCADE)";
+
+        // CREATE TABLE BUDGET_ITEMS
+        String budgetItemsTable = "CREATE TABLE IF NOT EXISTS " + TABLE_BUDGET_ITEMS + " ("
+                + ID_BUDGET_ITEM + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + BUDGET_ID_ITEM + " INTEGER NOT NULL, "
+                + CATEGORY_ID_ITEM + " TEXT, "
+                + ALLOCATED_AMOUNT_ITEM + " REAL NOT NULL, "
+                + CREATED_AT + " DATETIME DEFAULT (datetime('now')), "
+                + "FOREIGN KEY(" + BUDGET_ID_ITEM + ") REFERENCES " + TABLE_BUDGETS + "(" + ID_BUDGET + ") ON DELETE CASCADE)";
 
         db.execSQL(userTable);
         db.execSQL(categoriesTable);
         db.execSQL(expressTable);
+        db.execSQL(budgetsTable);
+        db.execSQL(budgetItemsTable);
 
         // Tạo index
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_express_user_date ON " + TABLE_EXPRESS + " (" + USER_ID_EXPRESS + ", " + DATE_EXPRESS + ")");
         db.execSQL("CREATE INDEX IF NOT EXISTS idx_express_category ON " + TABLE_EXPRESS + " (" + CATEGORY_ID_EXPRESS + ")");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_budget_user_month ON " + TABLE_BUDGETS + " (" + USER_ID_BUDGET + ", " + YEAR_BUDGET + ", " + MONTH_BUDGET + ")");
+        db.execSQL("CREATE INDEX IF NOT EXISTS idx_budget_items_budget ON " + TABLE_BUDGET_ITEMS + " (" + BUDGET_ID_ITEM + ")");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // Nâng cấp từ version cũ
         if (oldVersion < 5) {
             db.execSQL("ALTER TABLE expenses RENAME TO express");
+        }
+
+        // Thêm bảng budgets nếu chưa có (khi update app)
+        if (oldVersion < 6) {
+            String budgetsTable = "CREATE TABLE IF NOT EXISTS " + TABLE_BUDGETS + " ("
+                    + ID_BUDGET + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + USER_ID_BUDGET + " INTEGER NOT NULL, "
+                    + YEAR_BUDGET + " INTEGER, "
+                    + MONTH_BUDGET + " INTEGER, "
+                    + TARGET_AMOUNT_BUDGET + " REAL NOT NULL, "
+                    + CURRENCY_BUDGET + " TEXT DEFAULT 'VND', "
+                    + NOTE_BUDGET + " TEXT, "
+                    + CREATED_AT + " DATETIME DEFAULT (datetime('now')), "
+                    + UPDATED_AT + " DATETIME, "
+                    + "FOREIGN KEY(" + USER_ID_BUDGET + ") REFERENCES " + TABLE_USER + "(" + ID_USER + ") ON DELETE CASCADE)";
+
+            String budgetItemsTable = "CREATE TABLE IF NOT EXISTS " + TABLE_BUDGET_ITEMS + " ("
+                    + ID_BUDGET_ITEM + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                    + BUDGET_ID_ITEM + " INTEGER NOT NULL, "
+                    + CATEGORY_ID_ITEM + " TEXT, "
+                    + ALLOCATED_AMOUNT_ITEM + " REAL NOT NULL, "
+                    + CREATED_AT + " DATETIME DEFAULT (datetime('now')), "
+                    + "FOREIGN KEY(" + BUDGET_ID_ITEM + ") REFERENCES " + TABLE_BUDGETS + "(" + ID_BUDGET + ") ON DELETE CASCADE)";
+
+            db.execSQL(budgetsTable);
+            db.execSQL(budgetItemsTable);
         }
     }
 }

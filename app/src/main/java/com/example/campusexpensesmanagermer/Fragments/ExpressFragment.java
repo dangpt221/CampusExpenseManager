@@ -162,7 +162,6 @@ public class ExpressFragment extends Fragment {
         button.setOrientation(LinearLayout.VERTICAL);
         button.setGravity(Gravity.CENTER);
         button.setPadding(8, 8, 8, 8);
-
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0,
                 LinearLayout.LayoutParams.WRAP_CONTENT, 1);
         params.setMargins(4, 4, 4, 4);
