@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,10 +7,10 @@
     android:background="#F5F5F5"
     tools:context=".Fragments.BudgetFragment">
 
+    <!-- PHẦN 1: SCROLL VIEW VỚI CONTENT -->
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -230,7 +230,7 @@
                     android:progressDrawable="@drawable/progress_bar_style"/>
             </LinearLayout>
 
-            <!-- Budget Items Section -->
+            <!-- Budget Items Title -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -254,29 +254,33 @@
                 android:padding="32dp"
                 android:visibility="gone" />
 
-            <!-- RecyclerView for Budget Items -->
+            <!-- RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_budget_items"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
-                android:paddingBottom="100dp"
+                android:paddingBottom="120dp"
+                android:visibility="visible"
                 tools:listitem="@layout/item_budget" />
 
         </LinearLayout>
     </ScrollView>
 
-    <!-- FAB Button -->
+    <!-- PHẦN 2: FAB - PHẢI NGOÀI SCROLLVIEW -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_budget"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
+
+        android:layout_gravity="center_vertical|end"
+
+        android:layout_marginEnd="16dp"
+
         android:contentDescription="Add Budget"
         app:srcCompat="@android:drawable/ic_input_add"
         app:backgroundTint="#D3AE79"
         app:tint="@android:color/white" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</FrameLayout>

@@ -128,9 +128,23 @@ public class BudgetFragment extends Fragment implements BudgetAdapter.OnBudgetIt
         btnNextMonth.setOnClickListener(v -> nextMonth());
     }
 
+    // ========== VỊ TRÍ 1: Hàm showEmptyState - THAY THẾ TOÀN BỘ ==========
+    private void showEmptyState() {
+        rvBudgetItems.setVisibility(View.GONE);
+        tvEmptyState.setVisibility(View.VISIBLE);
+        tvTotalBudget.setText("0 ₫");
+        tvTotalSpent.setText("0 ₫");
+        tvRemaining.setText("0 ₫");
+        budgetProgressBar.setProgress(0);
+
+        Log.d(TAG, "✓ Showing empty state");
+    }
+
+    // ========== VỊ TRÍ 2: Hàm loadBudgetData - THAY THẾ TOÀN BỘ ==========
     private void loadBudgetData() {
         if (userId == 0) {
             Log.e(TAG, "Cannot load budget - userId is 0");
+            showEmptyState();
             return;
         }
 
@@ -143,6 +157,7 @@ public class BudgetFragment extends Fragment implements BudgetAdapter.OnBudgetIt
 
             if (currentBudget == null) {
                 // Không có budget cho tháng này
+                Log.d(TAG, "No budget found for " + currentMonth + "/" + currentYear);
                 showEmptyState();
                 return;
             }
@@ -167,17 +182,25 @@ public class BudgetFragment extends Fragment implements BudgetAdapter.OnBudgetIt
 
             // Load budget items
             List<BudgetItem> items = budgetItemRepository.getBudgetItemsByBudget(currentBudget.getId());
-            budgetItems.clear();
-            budgetItems.addAll(items);
-            budgetAdapter.notifyDataSetChanged();
 
-            rvBudgetItems.setVisibility(View.VISIBLE);
-            tvEmptyState.setVisibility(View.GONE);
+            if (items != null && !items.isEmpty()) {
+                budgetItems.clear();
+                budgetItems.addAll(items);
+                budgetAdapter.notifyDataSetChanged();
 
-            Log.d(TAG, "✓ Loaded budget for " + currentMonth + "/" + currentYear);
+                rvBudgetItems.setVisibility(View.VISIBLE);
+                tvEmptyState.setVisibility(View.GONE);
+
+                Log.d(TAG, "✓ Loaded " + items.size() + " budget items");
+            } else {
+                Log.d(TAG, "No budget items found");
+                showEmptyState();
+            }
+
         } catch (Exception e) {
             Log.e(TAG, "✗ Error loading budget: " + e.getMessage());
             e.printStackTrace();
+            showEmptyState();
         }
     }
 
@@ -185,15 +208,6 @@ public class BudgetFragment extends Fragment implements BudgetAdapter.OnBudgetIt
         String[] months = {"Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
                 "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"};
         tvCurrentMonth.setText(months[currentMonth - 1] + " năm " + currentYear);
-    }
-
-    private void showEmptyState() {
-        rvBudgetItems.setVisibility(View.GONE);
-        tvEmptyState.setVisibility(View.VISIBLE);
-        tvTotalBudget.setText("0 ₫");
-        tvTotalSpent.setText("0 ₫");
-        tvRemaining.setText("0 ₫");
-        budgetProgressBar.setProgress(0);
     }
 
     private void previousMonth() {

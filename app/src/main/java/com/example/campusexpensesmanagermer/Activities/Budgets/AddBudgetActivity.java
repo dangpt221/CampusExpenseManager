@@ -111,10 +111,12 @@ public class AddBudgetActivity extends AppCompatActivity {
         spinnerYear.setSelection(2);
     }
 
+    // ========== VỊ TRÍ CHÍNH: Hàm addBudget() - THAY THẾ TOÀN BỘ ==========
     private void addBudget() {
         String amountStr = edtTargetAmount.getText().toString().trim();
         String note = edtNote.getText().toString().trim();
 
+        // ✅ 1. Kiểm tra input
         if (TextUtils.isEmpty(amountStr)) {
             edtTargetAmount.setError("Vui lòng nhập số tiền");
             edtTargetAmount.requestFocus();
@@ -123,10 +125,12 @@ public class AddBudgetActivity extends AppCompatActivity {
 
         if (userId == 0) {
             Toast.makeText(this, "❌ Lỗi: User không tồn tại. Vui lòng đăng nhập lại", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "userId is 0");
             return;
         }
 
         try {
+            // ✅ 2. Parse và validate số tiền
             double amount = Double.parseDouble(amountStr);
             if (amount <= 0) {
                 edtTargetAmount.setError("Số tiền phải lớn hơn 0");
@@ -134,10 +138,13 @@ public class AddBudgetActivity extends AppCompatActivity {
                 return;
             }
 
+            // ✅ 3. Lấy month, year từ spinner
             int month = spinnerMonth.getSelectedItemPosition() + 1;
             int year = Integer.parseInt((String) spinnerYear.getSelectedItem());
 
-            // Tạo Budget
+            Log.d(TAG, "Adding budget: amount=" + amount + ", month=" + month + ", year=" + year);
+
+            // ✅ 4. Tạo Budget object
             Budget budget = new Budget();
             budget.setUserId(userId);
             budget.setMonth(month);
@@ -146,28 +153,68 @@ public class AddBudgetActivity extends AppCompatActivity {
             budget.setDescription(note);
             budget.setStatus(1);
 
+            // ✅ 5. Thêm Budget vào database
             long budgetId = budgetRepository.addBudget(budget);
 
             if (budgetId > 0) {
-                // Tạo BudgetItems cho mỗi category (chia đều)
+                Log.d(TAG, "✓ Budget created with ID: " + budgetId);
+
+                // ✅ 6. Tính số tiền cho mỗi danh mục
                 double amountPerCategory = amount / categories.length;
+                int successCount = 0;
+                int failCount = 0;
+
+                Log.d(TAG, "Creating " + categories.length + " budget items with amount: " + amountPerCategory + " each");
+
+                // ✅ 7. VÒNG LẶP: Thêm BudgetItem cho mỗi danh mục
                 for (String category : categories) {
                     BudgetItem item = new BudgetItem();
                     item.setBudgetId((int) budgetId);
                     item.setCategoryName(category);
                     item.setAllocatedAmount(amountPerCategory);
-                    budgetItemRepository.addBudgetItem(item);
+
+                    // ✅ QUAN TRỌNG: Kiểm tra kết quả từng item
+                    long itemId = budgetItemRepository.addBudgetItem(item);
+
+                    if (itemId > 0) {
+                        successCount++;
+                        Log.d(TAG, "✓ Budget item created: " + category + " (ID: " + itemId + ")");
+                    } else {
+                        failCount++;
+                        Log.e(TAG, "✗ Failed to create budget item: " + category);
+                    }
                 }
 
-                Toast.makeText(this, "✅ Thêm ngân sách thành công!", Toast.LENGTH_SHORT).show();
+                // ✅ 8. Thông báo kết quả cho người dùng
+                if (failCount == 0) {
+                    // Tất cả thành công
+                    Toast.makeText(this, "✅ Thêm ngân sách thành công! (" + successCount + " danh mục)",
+                            Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "✓ All budget items created successfully");
+                } else if (successCount > 0) {
+                    // Một số thất bại
+                    Toast.makeText(this, "⚠️ Thành công: " + successCount + ", Thất bại: " + failCount + "\nXem Logcat để chi tiết",
+                            Toast.LENGTH_LONG).show();
+                    Log.w(TAG, "⚠️ Partial success: " + successCount + " ok, " + failCount + " failed");
+                } else {
+                    // Tất cả thất bại
+                    Toast.makeText(this, "❌ Lỗi: Không thể thêm danh mục. Xem Logcat để chi tiết",
+                            Toast.LENGTH_LONG).show();
+                    Log.e(TAG, "✗ All budget items failed to create");
+                    return;
+                }
+
+                // ✅ 9. Kết thúc activity
                 setResult(RESULT_OK);
                 finish();
             } else {
                 Toast.makeText(this, "❌ Lỗi: Thêm ngân sách thất bại", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "✗ Failed to add budget, returned ID: " + budgetId);
             }
         } catch (NumberFormatException e) {
             edtTargetAmount.setError("Số tiền không hợp lệ");
             edtTargetAmount.requestFocus();
+            Log.e(TAG, "NumberFormatException: " + e.getMessage());
         } catch (Exception e) {
             Toast.makeText(this, "❌ Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             Log.e(TAG, "Exception: " + e.getMessage());
