@@ -26,6 +26,8 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     private static final String PREFS_NAME = "CampusExpensesPrefs";
     private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
     private static final String KEY_USERNAME = "username";
+    private static final String KEY_USER_ID = "ID_USER";
+    private static final String TAG = "HomeActivity";
 
     BottomNavigationView bottomNavigationView;
     DrawerLayout drawerLayout;
@@ -39,7 +41,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         super.onStart();
         // Check persistent session
         if (!isLoggedIn()) {
-            Log.d("HomeDebug", "Not logged in, redirecting to Login");
+            Log.d(TAG, "Not logged in, redirecting to Login");
             Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
@@ -59,40 +61,50 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         toolbar = findViewById(R.id.toolbar);
         navigationView = findViewById(R.id.navigationView);
 
-        // Retrieve username from prefs or intent (for initial setup)
+        // Retrieve username from prefs
         String username = prefs.getString(KEY_USERNAME, "");
-        if (TextUtils.isEmpty(username)) {
-            // Fallback to intent if not in prefs
+        int userId = prefs.getInt(KEY_USER_ID, 0);
+
+        Log.d(TAG, "From SharedPreferences - Username: " + username + ", UserId: " + userId);
+
+        // Nếu không có trong prefs, lấy từ intent (first time login)
+        if (TextUtils.isEmpty(username) || userId == 0) {
             Intent intentHome = getIntent();
             Bundle bundleHome = intentHome.getExtras();
             if (bundleHome != null) {
                 username = bundleHome.getString("ACCOUNT", "");
-                if (!TextUtils.isEmpty(username)) {
-                    saveLoginState(username); // Persist it
-                    Log.d("HomeDebug", "Saved username from intent: " + username);
+                userId = bundleHome.getInt("ID_USER", 0);
+                String email = bundleHome.getString("EMAIL", "");
+                int role = bundleHome.getInt("ROLE_USER", 0);
+
+                if (!TextUtils.isEmpty(username) && userId > 0) {
+                    saveLoginState(username, email, userId, role);
+                    Log.d(TAG, "Saved user from intent: " + username + " (ID: " + userId + ")");
                 }
             }
         }
 
-        Log.d("HomeDebug", "Username: '" + username + "', IsLoggedIn: " + isLoggedIn());
+        Log.d(TAG, "Final Username: '" + username + "', UserId: " + userId + ", IsLoggedIn: " + isLoggedIn());
 
-        if (TextUtils.isEmpty(username) || !isLoggedIn()) {
-            Log.d("HomeDebug", "Redirecting to Login: Missing data");
+        if (TextUtils.isEmpty(username) || userId == 0 || !isLoggedIn()) {
+            Log.d(TAG, "Redirecting to Login: Missing data");
             Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
-            return; // Dừng setup UI
+            return;
         }
 
-        // Xu ly hien thi drawer menu
+        // Setup drawer menu
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
                 R.string.open_nav, R.string.close_nav);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
-        // Xu ly khi bam menu bottom navigation
+        // Setup ViewPager
         setupViewPager();
+
+        // Setup bottom navigation
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int page = 0;
             if (item.getItemId() == R.id.menu_home) {
@@ -107,20 +119,20 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 page = 4;
             } else if (item.getItemId() == R.id.menu_setting) {
                 page = 5;
-            } else {
-                page = 0;
             }
             viewPager2.setCurrentItem(page);
             return true;
         });
 
-        // Xu ly logout App
+        // Setup logout
         Menu menu = navigationView.getMenu();
         MenuItem logout = menu.findItem(R.id.menu_Logout);
         MenuItem account = menu.findItem(R.id.tvAccount);
+
         if (!TextUtils.isEmpty(username)) {
             account.setTitle("Hi: " + username);
         }
+
         logout.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(@NonNull MenuItem item) {
@@ -132,14 +144,9 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void setupViewPager() {
-        ViewPagerApdapter apdapter = new ViewPagerApdapter(getSupportFragmentManager(), getLifecycle());
-        viewPager2.setAdapter(apdapter);
+        ViewPagerApdapter adapter = new ViewPagerApdapter(getSupportFragmentManager(), getLifecycle());
+        viewPager2.setAdapter(adapter);
         viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                super.onPageScrolled(position, positionOffset, positionOffsetPixels);
-            }
-
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
@@ -167,11 +174,6 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
                 if (item != null) {
                     item.setChecked(true);
                 }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                super.onPageScrollStateChanged(state);
             }
         });
     }
@@ -201,18 +203,23 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         return prefs.getBoolean(KEY_IS_LOGGED_IN, false);
     }
 
-    private void saveLoginState(String username) {
+    private void saveLoginState(String username, String email, int userId, int role) {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean(KEY_IS_LOGGED_IN, true);
         editor.putString(KEY_USERNAME, username);
+        editor.putString("email", email);
+        editor.putInt(KEY_USER_ID, userId);
+        editor.putInt("role", role);
         editor.apply();
+
+        Log.d(TAG, "Saved login state - ID_USER: " + userId);
     }
 
     private void logoutUser() {
         SharedPreferences.Editor editor = prefs.edit();
-        editor.clear(); // Clear all prefs
+        editor.clear();
         editor.apply();
-        Log.d("HomeDebug", "Logged out, redirecting to Login");
+        Log.d(TAG, "Logged out, redirecting to Login");
         Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();
