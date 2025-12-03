@@ -8,7 +8,6 @@ import android.util.Log;
 
 import com.example.campusexpensesmanagermer.Data.SQLiteDbHelper;
 import com.example.campusexpensesmanagermer.Models.Budget;
-import com.example.campusexpensesmanagermer.Models.BudgetItem;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -19,7 +18,7 @@ import java.util.Locale;
 
 public class BudgetRepository {
 
-    private SQLiteDbHelper dbHelper;
+    private final SQLiteDbHelper dbHelper;
     private static final String TAG = "BudgetRepository";
 
     public BudgetRepository(Context context) {
@@ -51,8 +50,7 @@ public class BudgetRepository {
             Log.d(TAG, "✓ Insert budget success - ID: " + id + ", UserId: " + budget.getUserId());
             return id;
         } catch (Exception e) {
-            Log.e(TAG, "✗ Error adding budget: " + e.getMessage());
-            e.printStackTrace();
+            Log.e(TAG, "✗ Error adding budget: " + e.getMessage(), e);
             return -1;
         } finally {
             if (db != null) {
@@ -84,7 +82,7 @@ public class BudgetRepository {
                 return budget;
             }
         } catch (Exception e) {
-            Log.e(TAG, "✗ Error getting budget: " + e.getMessage());
+            Log.e(TAG, "✗ Error getting budget: " + e.getMessage(), e);
         } finally {
             if (cursor != null) cursor.close();
             if (db != null) db.close();
@@ -100,10 +98,12 @@ public class BudgetRepository {
         Cursor cursor = null;
         try {
             db = dbHelper.getReadableDatabase();
+            // Ensure we return the most recently created budget if multiple budgets exist for the same month/year
             String query = "SELECT * FROM " + SQLiteDbHelper.TABLE_BUDGETS +
                     " WHERE " + SQLiteDbHelper.USER_ID_BUDGET + " = ? " +
                     "AND " + SQLiteDbHelper.MONTH_BUDGET + " = ? " +
-                    "AND " + SQLiteDbHelper.YEAR_BUDGET + " = ?";
+                    "AND " + SQLiteDbHelper.YEAR_BUDGET + " = ? " +
+                    "ORDER BY " + SQLiteDbHelper.ID_BUDGET + " DESC LIMIT 1";
             cursor = db.rawQuery(query, new String[]{String.valueOf(userId), String.valueOf(month), String.valueOf(year)});
 
             if (cursor != null && cursor.moveToFirst()) {
@@ -118,11 +118,11 @@ public class BudgetRepository {
                 // Tính tổng chi tiêu
                 budget.setSpent(getTotalSpentByBudget(budget.getId()));
 
-                Log.d(TAG, "✓ Found budget for " + month + "/" + year);
+                Log.d(TAG, "✓ Found budget for " + month + "/" + year + " (userId=" + userId + ")");
                 return budget;
             }
         } catch (Exception e) {
-            Log.e(TAG, "✗ Error getting budget: " + e.getMessage());
+            Log.e(TAG, "✗ Error getting budget: " + e.getMessage(), e);
         } finally {
             if (cursor != null) cursor.close();
             if (db != null) db.close();
@@ -164,7 +164,7 @@ public class BudgetRepository {
                 Log.d(TAG, "✓ Loaded " + list.size() + " budgets for userId: " + userId);
             }
         } catch (Exception e) {
-            Log.e(TAG, "✗ Error getting budgets: " + e.getMessage());
+            Log.e(TAG, "✗ Error getting budgets: " + e.getMessage(), e);
         } finally {
             if (cursor != null) cursor.close();
             if (db != null) db.close();
@@ -203,7 +203,7 @@ public class BudgetRepository {
             Log.d(TAG, success ? "✓ Update budget success" : "✗ Update budget failed");
             return success;
         } catch (Exception e) {
-            Log.e(TAG, "✗ Error updating budget: " + e.getMessage());
+            Log.e(TAG, "✗ Error updating budget: " + e.getMessage(), e);
             return false;
         } finally {
             if (db != null) db.close();
@@ -234,7 +234,7 @@ public class BudgetRepository {
             Log.d(TAG, success ? "✓ Delete budget success" : "✗ Delete budget failed");
             return success;
         } catch (Exception e) {
-            Log.e(TAG, "✗ Error deleting budget: " + e.getMessage());
+            Log.e(TAG, "✗ Error deleting budget: " + e.getMessage(), e);
             return false;
         } finally {
             if (db != null) db.close();
@@ -264,7 +264,7 @@ public class BudgetRepository {
             cursor = db.rawQuery(query, new String[]{
                     String.valueOf(budget.getUserId()),
                     String.valueOf(budget.getYear()),
-                    String.format("%02d", budget.getMonth())
+                    String.format(Locale.getDefault(), "%02d", budget.getMonth())
             });
 
             if (cursor != null && cursor.moveToFirst()) {
@@ -273,7 +273,7 @@ public class BudgetRepository {
                 return total;
             }
         } catch (Exception e) {
-            Log.e(TAG, "✗ Error calculating total spent: " + e.getMessage());
+            Log.e(TAG, "✗ Error calculating total spent: " + e.getMessage(), e);
         } finally {
             if (cursor != null) cursor.close();
             if (db != null) db.close();
@@ -304,14 +304,14 @@ public class BudgetRepository {
                     String.valueOf(budget.getUserId()),
                     categoryName,
                     String.valueOf(budget.getYear()),
-                    String.format("%02d", budget.getMonth())
+                    String.format(Locale.getDefault(), "%02d", budget.getMonth())
             });
 
             if (cursor != null && cursor.moveToFirst()) {
                 return cursor.getDouble(0);
             }
         } catch (Exception e) {
-            Log.e(TAG, "✗ Error calculating spent by category: " + e.getMessage());
+            Log.e(TAG, "✗ Error calculating spent by category: " + e.getMessage(), e);
         } finally {
             if (cursor != null) cursor.close();
             if (db != null) db.close();
@@ -320,3 +320,4 @@ public class BudgetRepository {
         return 0;
     }
 }
+

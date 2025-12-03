@@ -50,6 +50,15 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        // bat su kien doi mat khau
+        tvForgetpassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent forget = new Intent(LoginActivity.this, ForgotActivity.class);
+                startActivity(forget);
+            }
+        });
+
         // bat su kien - khi nguoi dung bam vao button Login
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override

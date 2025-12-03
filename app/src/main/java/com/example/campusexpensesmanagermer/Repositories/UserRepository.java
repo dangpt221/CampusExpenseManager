@@ -85,4 +85,19 @@ public class UserRepository extends SQLiteDbHelper {
         db.close();
         return checking;
     }
+
+    public boolean updatePassword(String username, String newPassword) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        // Giả sử tên cột mật khẩu trong database của bạn là "password"
+        values.put("password", newPassword);
+
+        // Cập nhật bảng user (thay "users" bằng tên bảng thực tế của bạn)
+        // Điều kiện: username phải trùng khớp
+        long result = db.update("users", values, "username = ?", new String[]{username});
+
+        // Nếu result == -1 là lỗi, result > 0 là thành công
+        return result != -1;
+    }
 }

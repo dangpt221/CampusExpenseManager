@@ -35,7 +35,9 @@
         <!-- Register Activity -->
         <activity
             android:name=".Activities.RegisterActivity" />
-
+        <!-- Forgot Activity -->
+        <activity
+            android:name=".Activities.ForgotActivity" />
         <!-- Add Express Activity -->
         <activity
             android:name=".Activities.Expenses.AddExpressActivity"
