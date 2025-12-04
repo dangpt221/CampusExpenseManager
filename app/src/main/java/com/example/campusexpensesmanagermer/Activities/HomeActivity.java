@@ -51,6 +51,7 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_home);
 
         prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -223,5 +224,11 @@ public class HomeActivity extends AppCompatActivity implements NavigationView.On
         Intent intent = new Intent(HomeActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();
+    }
+    // --- Thêm hàm này vào cuối file HomeActivity.java ---
+    public void goToHome() {
+        if (viewPager2 != null) {
+            viewPager2.setCurrentItem(0); // 0 là vị trí tab Trang chủ
+        }
     }
 }
