@@ -29,7 +29,7 @@
                     android:id="@+id/tv_welcome"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Hello, User 👋"
+                    android:text="@string/hello_user"
                     android:textSize="24sp"
                     android:textStyle="bold"
                     android:textColor="@android:color/white" />
@@ -37,7 +37,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Quản lý chi tiêu thông minh"
+                    android:text="@string/smart_expense_management"
                     android:textSize="14sp"
                     android:textColor="#F0F0F0"
                     android:layout_marginTop="4dp" />
@@ -62,7 +62,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="💰 Tổng quan tài chính"
+                        android:text="@string/financial_overview"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="#333333"
@@ -84,7 +84,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Ngân sách"
+                                android:text="@string/label_budget"
                                 android:textSize="12sp"
                                 android:textColor="#999999" />
 
@@ -92,7 +92,7 @@
                                 android:id="@+id/tv_total_budget"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="0 ₫"
+                                android:text="@string/currency_zero"
                                 android:textSize="18sp"
                                 android:textStyle="bold"
                                 android:textColor="#D3AE79"
@@ -114,7 +114,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Đã chi"
+                                android:text="@string/label_spent"
                                 android:textSize="12sp"
                                 android:textColor="#999999" />
 
@@ -122,7 +122,7 @@
                                 android:id="@+id/tv_spent"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="0 ₫"
+                                android:text="@string/currency_zero"
                                 android:textColor="#FF9800"
                                 android:textSize="18sp"
                                 android:textStyle="bold"
@@ -144,7 +144,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Còn lại"
+                                android:text="@string/label_remaining"
                                 android:textSize="12sp"
                                 android:textColor="#999999" />
 
@@ -152,7 +152,7 @@
                                 android:id="@+id/tv_balance"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="0 ₫"
+                                android:text="@string/currency_zero"
                                 android:textColor="#4CAF50"
                                 android:textSize="18sp"
                                 android:textStyle="bold"
@@ -166,7 +166,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="📈 Biểu đồ chi tiêu"
+                android:text="@string/spending_chart"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="#333333"
@@ -204,7 +204,7 @@
                             android:layout_width="0dp"
                             android:layout_height="36dp"
                             android:layout_weight="1"
-                            android:text="Tròn"
+                            android:text="@string/chart_pie"
                             android:textSize="12sp"
                             android:layout_marginEnd="4dp" />
 
@@ -214,7 +214,7 @@
                             android:layout_width="0dp"
                             android:layout_height="36dp"
                             android:layout_weight="1"
-                            android:text="Cột"
+                            android:text="@string/chart_bar"
                             android:textSize="12sp"
                             android:layout_marginStart="4dp" />
                     </LinearLayout>
@@ -237,7 +237,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="⚡ Thao tác nhanh"
+                android:text="@string/quick_actions"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="#333333"
@@ -273,13 +273,13 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="💸"
+                            android:text="@string/emoji_money"
                             android:textSize="32sp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Ghi chi"
+                            android:text="@string/add_expense"
                             android:textSize="12sp"
                             android:textColor="#666666"
                             android:layout_marginTop="4dp" />
@@ -307,13 +307,13 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="📊"
+                            android:text="@string/emoji_chart"
                             android:textSize="32sp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Ngân sách"
+                            android:text="@string/budgets"
                             android:textSize="12sp"
                             android:textColor="#666666"
                             android:layout_marginTop="4dp" />
@@ -340,13 +340,13 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="📈"
+                            android:text="@string/emoji_trend"
                             android:textSize="32sp" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Báo cáo"
+                            android:text="@string/reports"
                             android:textSize="12sp"
                             android:textColor="#666666"
                             android:layout_marginTop="4dp" />
@@ -359,7 +359,7 @@
                 android:id="@+id/tv_recent_expenses_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="📝 Chi tiêu gần đây"
+                android:text="@string/recent_expenses"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="#333333"
@@ -387,7 +387,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:contentDescription="Add Expense"
+        android:contentDescription="@string/add_expense"
         app:srcCompat="@android:drawable/ic_input_add"
         app:backgroundTint="#D3AE79"
         app:tint="@android:color/white" />

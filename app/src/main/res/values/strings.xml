@@ -1,9 +1,48 @@
-    <resources>
-        <string name="app_name">CampusExpensesManagermer</string>
+<resources>
+        <string name="app_name">CampusExpenseManager</string>
         <!-- TODO: Remove or change this placeholder text -->
         <string name="hello_blank_fragment">Hello blank fragment</string>
         <string name="open_nav">Open Navigation</string>
         <string name="close_nav">Close Navigation</string>
-        <string name="sao_l_u_kh_i_ph_c"><![CDATA[Sao lưu & Khôi phục]]></string>
-        <string name="d_li_u_b_o_m_t"><![CDATA[🔒 Dữ liệu & Bảo mật]]></string>
+
+        <!-- Previously Vietnamese keys re-used for English display -->
+        <string name="sao_l_u_kh_i_ph_c">Backup &amp; Restore</string>
+        <string name="d_li_u_b_o_m_t">🔒 Data &amp; Security</string>
+
+        <!-- Home Fragment strings (English) -->
+        <string name="hello_user">Hello, User 👋</string>
+        <string name="smart_expense_management">Smart expense management</string>
+        <string name="financial_overview">💰 Financial Overview</string>
+        <string name="label_budget">Budget</string>
+        <string name="label_spent">Spent</string>
+        <string name="label_remaining">Remaining</string>
+        <string name="currency_zero">0 ₫</string>
+        <string name="spending_chart">📈 Spending Chart</string>
+        <string name="chart_pie">Pie</string>
+        <string name="chart_bar">Bar</string>
+        <string name="quick_actions">⚡ Quick Actions</string>
+
+        <string name="emoji_money">💸</string>
+        <string name="add_expense">Add Expense</string>
+        <string name="emoji_chart">📊</string>
+        <string name="budgets">Budgets</string>
+        <string name="emoji_trend">📈</string>
+        <string name="reports">Reports</string>
+
+        <string name="recent_expenses">📝 Recent Expenses</string>
+
+        <!-- Settings screen strings (English) -->
+        <string name="settings_title">⚙️ Settings</string>
+        <string name="appearance">🎨 Appearance</string>
+        <string name="dark_mode">Dark Mode</string>
+        <string name="general_settings">⚙️ General</string>
+        <string name="currency_label">Currency: VND</string>
+        <string name="language_label">Language: Vietnamese</string>
+        <string name="notifications">🔔 Notifications</string>
+        <string name="spending_reminder">Spending reminder</string>
+        <string name="limit_reminder">Limit reminder</string>
+        <string name="account_security">Account security</string>
+        <string name="backup_restore">Backup &amp; Restore</string>
+        <string name="account">👤 Account</string>
+        <string name="logout">🚪 Log out</string>
     </resources>
