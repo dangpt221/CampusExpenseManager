@@ -98,7 +98,7 @@ public class ExpressRepository {
                     selectionArgs,
                     null,
                     null,
-                    SQLiteDbHelper.ID_EXPRESS + " DESC"
+                    SQLiteDbHelper.DATE_EXPRESS + " DESC, " + SQLiteDbHelper.ID_EXPRESS + " DESC"
             );
 
             if (cursor != null && cursor.getCount() > 0) {
