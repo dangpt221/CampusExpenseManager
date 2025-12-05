@@ -32,9 +32,6 @@ import com.example.campusexpensesmanagermer.Activities.LoginActivity;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.nio.channels.FileChannel;
 
 public class SettingFragment extends Fragment {
 
@@ -124,10 +121,10 @@ public class SettingFragment extends Fragment {
     // --- HÀM HỖ TRỢ ĐĂNG XUẤT ---
     private void showLogoutConfirmation() {
         new AlertDialog.Builder(requireContext())
-                .setTitle("Đăng xuất")
-                .setMessage("Bạn có chắc chắn muốn đăng xuất?")
-                .setPositiveButton("Đồng ý", (dialog, which) -> logoutUser())
-                .setNegativeButton("Hủy", null)
+                .setTitle("Log out")
+                .setMessage("Are you sure you want to log out?")
+                .setPositiveButton("Yes", (dialog, which) -> logoutUser())
+                .setNegativeButton("Cancel", null)
                 .show();
     }
 
@@ -146,12 +143,12 @@ public class SettingFragment extends Fragment {
 
     // --- HÀM HỖ TRỢ NGÔN NGỮ ---
     private void showLanguageDialog(TextView tvDisplay) {
-        final String[] languages = {"Tiếng Việt", "English", "Japanese"};
+        final String[] languages = {"Vietnamese", "English", "Japanese"};
         new AlertDialog.Builder(requireContext())
-                .setTitle("Chọn ngôn ngữ")
+                .setTitle("Select language")
                 .setItems(languages, (dialog, which) -> {
                     if (tvDisplay != null) tvDisplay.setText(languages[which]);
-                    Toast.makeText(getContext(), "Đã chọn: " + languages[which], Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Selected: " + languages[which], Toast.LENGTH_SHORT).show();
                 })
                 .show();
     }
@@ -159,24 +156,24 @@ public class SettingFragment extends Fragment {
     // --- HÀM HỖ TRỢ ĐẶT MÃ PIN ---
     private void showSetPinDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Thiết lập mã PIN");
-        builder.setMessage("Nhập mã PIN 4 số:");
+        builder.setTitle("Set PIN");
+        builder.setMessage("Enter a 4-digit PIN:");
 
         final EditText input = new EditText(requireContext());
         input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
         builder.setView(input);
 
-        builder.setPositiveButton("Lưu", (dialog, which) -> {
+        builder.setPositiveButton("Save", (dialog, which) -> {
             String pin = input.getText().toString();
             if (pin.length() == 4) {
                 sharedPreferences.edit().putString("USER_PIN", pin).apply();
                 sharedPreferences.edit().putBoolean("IS_PIN_ENABLED", true).apply();
-                Toast.makeText(getContext(), "Đã đặt PIN thành công!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "PIN set successfully!", Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(getContext(), "Vui lòng nhập đủ 4 số!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Please enter exactly 4 digits!", Toast.LENGTH_SHORT).show();
             }
         });
-        builder.setNegativeButton("Hủy", null);
+        builder.setNegativeButton("Cancel", null);
         builder.show();
     }
 
@@ -194,18 +191,19 @@ public class SettingFragment extends Fragment {
                 File backupDB = new File(sd, backupDBPath);
 
                 if (currentDB.exists()) {
-                    FileChannel src = new FileInputStream(currentDB).getChannel();
-                    FileChannel dst = new FileOutputStream(backupDB).getChannel();
-                    dst.transferFrom(src, 0, src.size());
-                    src.close();
-                    dst.close();
-                    Toast.makeText(getContext(), "Đã sao lưu tại thư mục Download!", Toast.LENGTH_LONG).show();
+                    try (java.io.FileInputStream fis = new java.io.FileInputStream(currentDB);
+                         java.io.FileOutputStream fos = new java.io.FileOutputStream(backupDB)) {
+                        fos.getChannel().transferFrom(fis.getChannel(), 0, fis.getChannel().size());
+                        Toast.makeText(getContext(), "Backup saved to Downloads!", Toast.LENGTH_LONG).show();
+                    } catch (Exception ex) {
+                        Toast.makeText(getContext(), "Error during backup: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    Toast.makeText(getContext(), "Không tìm thấy dữ liệu gốc (" + DB_NAME + ")!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Original database not found (" + DB_NAME + ")!", Toast.LENGTH_SHORT).show();
                 }
             }
         } catch (Exception e) {
-            Toast.makeText(getContext(), "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 

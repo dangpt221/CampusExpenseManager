@@ -39,8 +39,8 @@ public class AddBudgetActivity extends AppCompatActivity {
     private static final String TAG = "AddBudgetActivity";
 
     private String[] categories = {
-            "Ăn uống", "Giao thông", "Mua sắm", "Giải trí",
-            "Y tế", "Giáo dục", "Nhà ở", "Utilities", "Khác"
+            "Food", "Transport", "Shopping", "Entertainment",
+            "Health", "Education", "Housing", "Utilities", "Other"
     };
 
     @Override
@@ -61,7 +61,7 @@ public class AddBudgetActivity extends AppCompatActivity {
             setupSpinners();
 
             if (getSupportActionBar() != null) {
-                getSupportActionBar().setTitle("Thêm ngân sách mới");
+                getSupportActionBar().setTitle("Add new budget");
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }
 
@@ -83,8 +83,8 @@ public class AddBudgetActivity extends AppCompatActivity {
     }
 
     private void setupSpinners() {
-        String[] months = {"Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
-                "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"};
+        String[] months = {"Month 1", "Month 2", "Month 3", "Month 4", "Month 5", "Month 6",
+                "Month 7", "Month 8", "Month 9", "Month 10", "Month 11", "Month 12"};
         ArrayAdapter<String> monthAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, months);
         monthAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerMonth.setAdapter(monthAdapter);
@@ -106,15 +106,15 @@ public class AddBudgetActivity extends AppCompatActivity {
         String note = edtNote.getText().toString().trim();
 
         if (TextUtils.isEmpty(amountStr) || userId == 0) {
-            if (TextUtils.isEmpty(amountStr)) edtTargetAmount.setError("Vui lòng nhập số tiền");
-            if (userId == 0) Toast.makeText(this, "❌ Lỗi: User không tồn tại.", Toast.LENGTH_SHORT).show();
+            if (TextUtils.isEmpty(amountStr)) edtTargetAmount.setError("Please enter amount");
+            if (userId == 0) Toast.makeText(this, "❌ Error: User not found.", Toast.LENGTH_SHORT).show();
             return;
         }
 
         try {
             double amount = Double.parseDouble(amountStr);
             if (amount <= 0) {
-                edtTargetAmount.setError("Số tiền phải lớn hơn 0");
+                edtTargetAmount.setError("Amount must be greater than 0");
                 return;
             }
 
@@ -137,7 +137,7 @@ public class AddBudgetActivity extends AppCompatActivity {
                     budgetItemRepository.addBudgetItem(item);
                 }
 
-                Toast.makeText(this, "✅ Thêm ngân sách thành công!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "✅ Budget added successfully!", Toast.LENGTH_SHORT).show();
 
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra(EXTRA_MONTH, month);
@@ -147,10 +147,10 @@ public class AddBudgetActivity extends AppCompatActivity {
                 finish();
 
             } else {
-                Toast.makeText(this, "❌ Lỗi: Thêm ngân sách thất bại", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "❌ Error: Failed to add budget", Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
-            Toast.makeText(this, "❌ Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "❌ Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             Log.e(TAG, "Exception: " + e.getMessage(), e);
         }
     }

@@ -17,7 +17,7 @@
             android:id="@+id/tv_report_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="📊 Báo Cáo Chi Tiêu"
+            android:text="📊 Expense Report"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="#333333"
@@ -45,7 +45,7 @@
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Tuần này"
+                    android:text="This week"
                     android:checked="true"/>
 
                 <com.google.android.material.chip.Chip
@@ -53,14 +53,14 @@
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Tháng này"/>
+                    android:text="This month"/>
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chip_year"
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Năm này"/>
+                    android:text="This year"/>
             </com.google.android.material.chip.ChipGroup>
         </HorizontalScrollView>
 
@@ -69,7 +69,7 @@
             android:id="@+id/tv_comparison_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="So sánh tháng"
+            android:text="Month comparison"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="#333333"
@@ -104,7 +104,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tháng này"
+                        android:text="This month"
                         android:textSize="14sp"
                         android:textColor="#666666"/>
 
@@ -134,7 +134,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tháng trước"
+                        android:text="Previous month"
                         android:textSize="14sp"
                         android:textColor="#666666"/>
 
@@ -156,7 +156,7 @@
             android:id="@+id/tv_category_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Chi tiêu theo danh mục"
+            android:text="Expenses by category"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="#333333"
@@ -179,7 +179,7 @@
             android:id="@+id/tv_top_expenses_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Top 5 chi tiêu lớn nhất"
+            android:text="Top 5 largest expenses"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="#333333"
@@ -204,7 +204,7 @@
             android:layout_height="56dp"
             android:layout_marginTop="24dp"
             android:layout_marginBottom="16dp"
-            android:text="📤 Xuất báo cáo"
+            android:text="📤 Export report"
             android:textSize="16sp"
             android:backgroundTint="#D3AE79"
             app:layout_constraintEnd_toEndOf="parent"

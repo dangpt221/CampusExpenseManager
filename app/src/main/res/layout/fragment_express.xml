@@ -18,7 +18,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="⚡ Ghi Nhanh Chi Tiêu"
+            android:text="⚡ Quick Expense"
             android:textSize="28sp"
             android:textStyle="bold"
             android:textColor="@android:color/white"
@@ -27,7 +27,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ghi lại chi tiêu nhanh chóng"
+            android:text="Record expenses quickly"
             android:textSize="14sp"
             android:textColor="#F0F0F0"
             android:gravity="center"
@@ -77,7 +77,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Loại chi: Ăn uống"
+                        android:text="Category: Food"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="#333333" />
@@ -86,7 +86,7 @@
                         android:id="@+id/tvDate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Ngày: 15/01/2025"
+                        android:text="Date: 15/01/2025"
                         android:textSize="12sp"
                         android:textColor="#999999" />
                 </LinearLayout>
@@ -95,7 +95,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Số tiền"
+                    android:text="Amount"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="#333333"
@@ -140,7 +140,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Tên khoản chi"
+                    android:text="Expense name"
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:textColor="#333333"
@@ -151,7 +151,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:background="@drawable/edit_text_background"
-                    android:hint="Ví dụ: Ăn sáng, Xe bus..."
+                    android:hint="e.g. Breakfast, Bus..."
                     android:inputType="text"
                     android:paddingStart="16dp"
                     android:paddingEnd="16dp"
@@ -173,7 +173,7 @@
                         android:layout_width="0dp"
                         android:layout_height="50dp"
                         android:layout_weight="1"
-                        android:text="✓ Ghi lại"
+                        android:text="✓ Save"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:backgroundTint="#D3AE79"
@@ -185,7 +185,7 @@
                         android:layout_width="0dp"
                         android:layout_height="50dp"
                         android:layout_weight="1"
-                        android:text="↻ Xóa"
+                        android:text="↻ Clear"
                         android:textSize="16sp"
                         android:backgroundTint="#CCCCCC"
                         android:textColor="@android:color/white"
@@ -197,7 +197,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Chọn loại chi tiêu"
+                android:text="Select category"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:textColor="#333333"
@@ -225,7 +225,7 @@
         android:id="@+id/tvEmptyState"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="📝 Chưa có chi tiêu nào. Hãy thêm chi tiêu đầu tiên!"
+        android:text="📝 No expenses yet. Add your first expense!"
         android:textSize="16sp"
         android:textColor="#999999"
         android:gravity="center"

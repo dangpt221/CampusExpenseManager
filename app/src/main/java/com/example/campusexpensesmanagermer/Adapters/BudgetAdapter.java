@@ -25,7 +25,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
 
     public interface OnBudgetItemClickListener {
         void onEdit(BudgetItem item);
-        void onDelete(BudgetItem item);
+        // removed onDelete to disable delete functionality from UI
     }
 
     public BudgetAdapter(Context context, List<BudgetItem> budgetItems) {
@@ -91,11 +91,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
             }
         });
 
-        holder.tvDelete.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onDelete(item);
-            }
-        });
+        // Removed delete click listener - delete UI disabled
     }
 
     @Override
@@ -125,7 +121,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
      * ViewHolder
      */
     public static class BudgetViewHolder extends RecyclerView.ViewHolder {
-        TextView tvCategory, tvAllocated, tvSpent, tvRemaining, tvProgress, tvDelete;
+        TextView tvCategory, tvAllocated, tvSpent, tvRemaining, tvProgress; // removed tvDelete
         ProgressBar progressBar;
 
         public BudgetViewHolder(@NonNull View itemView) {
@@ -136,7 +132,7 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
             tvRemaining = itemView.findViewById(R.id.tv_remaining_amount);
             tvProgress = itemView.findViewById(R.id.tv_progress_percent);
             progressBar = itemView.findViewById(R.id.progress_bar);
-            tvDelete = itemView.findViewById(R.id.tv_delete);
+            // tvDelete removed
         }
     }
 }

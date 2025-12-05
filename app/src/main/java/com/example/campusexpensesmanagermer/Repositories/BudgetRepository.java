@@ -47,7 +47,9 @@ public class BudgetRepository {
             values.put(SQLiteDbHelper.NOTE_BUDGET, budget.getDescription());
 
             long id = db.insert(SQLiteDbHelper.TABLE_BUDGETS, null, values);
-            Log.d(TAG, "✓ Insert budget success - ID: " + id + ", UserId: " + budget.getUserId());
+            Log.d(TAG, "✓ Insert budget success - ID: " + id + ", UserId: " + budget.getUserId()
+                    + ", Month: " + budget.getMonth() + ", Year: " + budget.getYear()
+                    + ", Amount: " + budget.getMoney());
             return id;
         } catch (Exception e) {
             Log.e(TAG, "✗ Error adding budget: " + e.getMessage(), e);
@@ -79,6 +81,8 @@ public class BudgetRepository {
                 budget.setMonth(cursor.getInt(cursor.getColumnIndexOrThrow(SQLiteDbHelper.MONTH_BUDGET)));
                 budget.setMoney(cursor.getDouble(cursor.getColumnIndexOrThrow(SQLiteDbHelper.TARGET_AMOUNT_BUDGET)));
                 budget.setDescription(cursor.getString(cursor.getColumnIndexOrThrow(SQLiteDbHelper.NOTE_BUDGET)));
+
+                Log.d(TAG, "✓ Found budget ID: " + budgetId);
                 return budget;
             }
         } catch (Exception e) {
@@ -91,14 +95,14 @@ public class BudgetRepository {
     }
 
     /**
-     * Lấy ngân sách theo tháng/năm
+     * ✅ FIX: Lấy ngân sách theo tháng/năm
+     * Trả về budget mới nhất nếu có nhiều budget cho cùng tháng/năm
      */
     public Budget getBudgetByUserAndMonth(int userId, int month, int year) {
         SQLiteDatabase db = null;
         Cursor cursor = null;
         try {
             db = dbHelper.getReadableDatabase();
-            // Ensure we return the most recently created budget if multiple budgets exist for the same month/year
             String query = "SELECT * FROM " + SQLiteDbHelper.TABLE_BUDGETS +
                     " WHERE " + SQLiteDbHelper.USER_ID_BUDGET + " = ? " +
                     "AND " + SQLiteDbHelper.MONTH_BUDGET + " = ? " +
@@ -115,10 +119,11 @@ public class BudgetRepository {
                 budget.setMoney(cursor.getDouble(cursor.getColumnIndexOrThrow(SQLiteDbHelper.TARGET_AMOUNT_BUDGET)));
                 budget.setDescription(cursor.getString(cursor.getColumnIndexOrThrow(SQLiteDbHelper.NOTE_BUDGET)));
 
-                // Tính tổng chi tiêu
+                // ✅ FIX: Tính tổng chi tiêu chính xác
                 budget.setSpent(getTotalSpentByBudget(budget.getId()));
 
-                Log.d(TAG, "✓ Found budget for " + month + "/" + year + " (userId=" + userId + ")");
+                Log.d(TAG, "✓ Found budget for " + month + "/" + year + " (userId=" + userId
+                        + "), Spent: " + budget.getSpent());
                 return budget;
             }
         } catch (Exception e) {
@@ -156,9 +161,7 @@ public class BudgetRepository {
                     budget.setMoney(cursor.getDouble(cursor.getColumnIndexOrThrow(SQLiteDbHelper.TARGET_AMOUNT_BUDGET)));
                     budget.setDescription(cursor.getString(cursor.getColumnIndexOrThrow(SQLiteDbHelper.NOTE_BUDGET)));
 
-                    // Tính tổng chi tiêu
                     budget.setSpent(getTotalSpentByBudget(budget.getId()));
-
                     list.add(budget);
                 }
                 Log.d(TAG, "✓ Loaded " + list.size() + " budgets for userId: " + userId);
@@ -242,7 +245,8 @@ public class BudgetRepository {
     }
 
     /**
-     * Tính tổng chi tiêu theo budget (sum của tất cả budget items)
+     * ✅ FIX: Tính tổng chi tiêu theo budget (sum của tất cả chi tiêu trong tháng/năm)
+     * Sử dụng TRIM() để so sánh chính xác category
      */
     public double getTotalSpentByBudget(int budgetId) {
         SQLiteDatabase db = null;
@@ -250,12 +254,13 @@ public class BudgetRepository {
         try {
             db = dbHelper.getReadableDatabase();
 
-            // Lấy budget để biết month/year
             Budget budget = getBudgetById(budgetId);
-            if (budget == null) return 0;
+            if (budget == null) {
+                return 0;
+            }
 
-            // Tính tổng chi tiêu từ express trong tháng/năm này theo các category có trong budget items
-            String query = "SELECT SUM(e." + SQLiteDbHelper.AMOUNT_EXPRESS + ") as total " +
+            // ✅ FIX: Tính tổng chi tiêu từ express trong tháng/năm
+            String query = "SELECT COALESCE(SUM(e." + SQLiteDbHelper.AMOUNT_EXPRESS + "), 0) as total " +
                     "FROM " + SQLiteDbHelper.TABLE_EXPRESS + " e " +
                     "WHERE e." + SQLiteDbHelper.USER_ID_EXPRESS + " = ? " +
                     "AND strftime('%Y', e." + SQLiteDbHelper.DATE_EXPRESS + ") = ? " +
@@ -269,7 +274,8 @@ public class BudgetRepository {
 
             if (cursor != null && cursor.moveToFirst()) {
                 double total = cursor.getDouble(0);
-                Log.d(TAG, "Total spent for budget " + budgetId + ": " + total);
+                Log.d(TAG, "Total spent for budget " + budgetId + " (" + budget.getMonth()
+                        + "/" + budget.getYear() + "): " + total);
                 return total;
             }
         } catch (Exception e) {
@@ -283,7 +289,8 @@ public class BudgetRepository {
     }
 
     /**
-     * Tính chi tiêu theo category
+     * ✅ FIX: Tính chi tiêu theo category
+     * Sử dụng TRIM() để so sánh chính xác
      */
     public double getSpentByCategory(int budgetId, String categoryName) {
         SQLiteDatabase db = null;
@@ -293,22 +300,24 @@ public class BudgetRepository {
             Budget budget = getBudgetById(budgetId);
             if (budget == null) return 0;
 
-            String query = "SELECT SUM(e." + SQLiteDbHelper.AMOUNT_EXPRESS + ") as total " +
+            String query = "SELECT COALESCE(SUM(e." + SQLiteDbHelper.AMOUNT_EXPRESS + "), 0) as total " +
                     "FROM " + SQLiteDbHelper.TABLE_EXPRESS + " e " +
                     "WHERE e." + SQLiteDbHelper.USER_ID_EXPRESS + " = ? " +
-                    "AND e." + SQLiteDbHelper.CATEGORY_ID_EXPRESS + " = ? " +
+                    "AND TRIM(e." + SQLiteDbHelper.CATEGORY_ID_EXPRESS + ") = TRIM(?) " +
                     "AND strftime('%Y', e." + SQLiteDbHelper.DATE_EXPRESS + ") = ? " +
                     "AND strftime('%m', e." + SQLiteDbHelper.DATE_EXPRESS + ") = ?";
 
             cursor = db.rawQuery(query, new String[]{
                     String.valueOf(budget.getUserId()),
-                    categoryName,
+                    categoryName.trim(),
                     String.valueOf(budget.getYear()),
                     String.format(Locale.getDefault(), "%02d", budget.getMonth())
             });
 
             if (cursor != null && cursor.moveToFirst()) {
-                return cursor.getDouble(0);
+                double result = cursor.getDouble(0);
+                Log.d(TAG, "Spent for category '" + categoryName + "': " + result);
+                return result;
             }
         } catch (Exception e) {
             Log.e(TAG, "✗ Error calculating spent by category: " + e.getMessage(), e);
@@ -320,4 +329,3 @@ public class BudgetRepository {
         return 0;
     }
 }
-

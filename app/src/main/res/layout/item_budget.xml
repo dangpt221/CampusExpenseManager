@@ -8,7 +8,7 @@
     android:layout_margin="8dp"
     android:elevation="2dp">
 
-    <!-- Header: Category + Delete Button -->
+    <!-- Header: Category (removed delete button) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -26,17 +26,7 @@
             android:textStyle="bold"
             android:textColor="#333333"/>
 
-        <TextView
-            android:id="@+id/tv_delete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="🗑️ Xóa"
-            android:textSize="12sp"
-            android:textColor="#F44336"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:paddingTop="4dp"
-            android:paddingBottom="4dp"/>
+        <!-- Delete button removed to disable delete functionality -->
     </LinearLayout>
 
     <!-- Amounts Row -->
@@ -57,7 +47,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cấp phát"
+                android:text="Allocated"
                 android:textSize="11sp"
                 android:textColor="#999999"/>
 
@@ -81,7 +71,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Đã chi"
+                android:text="Spent"
                 android:textSize="11sp"
                 android:textColor="#999999"/>
 
@@ -105,7 +95,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Còn lại"
+                android:text="Remaining"
                 android:textSize="11sp"
                 android:textColor="#999999"/>
 

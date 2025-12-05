@@ -26,7 +26,8 @@ public class ExpressRepository {
     }
 
     /**
-     * Thêm chi tiêu mới vào database
+     * ✅ FIX: Thêm chi tiêu mới vào database
+     * Cải thiện: Lưu categoryName với trim(), tránh khoảng trắng
      */
     public long addExpress(Express express) {
         if (express == null) {
@@ -39,14 +40,13 @@ public class ExpressRepository {
             db = dbHelper.getWritableDatabase();
             ContentValues values = new ContentValues();
 
-            // Sử dụng đúng tên cột từ SQLiteDbHelper
             values.put(SQLiteDbHelper.TITLE_EXPRESS, express.getTitle());
             values.put(SQLiteDbHelper.AMOUNT_EXPRESS, express.getAmount());
-            values.put(SQLiteDbHelper.CATEGORY_ID_EXPRESS, express.getCategoryName());
+            // ✅ FIX: TRIM category name khi lưu
+            values.put(SQLiteDbHelper.CATEGORY_ID_EXPRESS, express.getCategoryName().trim());
             values.put(SQLiteDbHelper.USER_ID_EXPRESS, express.getUserId());
             values.put(SQLiteDbHelper.CURRENCY_EXPRESS, "VND");
 
-            // Lưu ngày giờ hiện tại
             String currentDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
                     .format(new Date());
             values.put(SQLiteDbHelper.DATE_EXPRESS, currentDateTime);
@@ -54,7 +54,8 @@ public class ExpressRepository {
 
             long id = db.insert(SQLiteDbHelper.TABLE_EXPRESS, null, values);
             Log.d(TAG, "✓ Insert express success - ID: " + id + ", UserId: " + express.getUserId()
-                    + ", Title: " + express.getTitle() + ", Amount: " + express.getAmount());
+                    + ", Title: " + express.getTitle() + ", Amount: " + express.getAmount()
+                    + ", Category: " + express.getCategoryName());
             return id;
         } catch (Exception e) {
             Log.e(TAG, "✗ Error adding express: " + e.getMessage());
@@ -108,6 +109,7 @@ public class ExpressRepository {
                     e.setAmount(cursor.getDouble(cursor.getColumnIndexOrThrow(SQLiteDbHelper.AMOUNT_EXPRESS)));
                     e.setCategoryName(cursor.getString(cursor.getColumnIndexOrThrow(SQLiteDbHelper.CATEGORY_ID_EXPRESS)));
                     e.setUserId(cursor.getInt(cursor.getColumnIndexOrThrow(SQLiteDbHelper.USER_ID_EXPRESS)));
+                    e.setDate(cursor.getString(cursor.getColumnIndexOrThrow(SQLiteDbHelper.DATE_EXPRESS)));
                     list.add(e);
                 }
                 Log.d(TAG, "✓ Loaded " + list.size() + " expenses for userId: " + userId);
@@ -203,7 +205,7 @@ public class ExpressRepository {
             ContentValues values = new ContentValues();
             values.put(SQLiteDbHelper.TITLE_EXPRESS, express.getTitle());
             values.put(SQLiteDbHelper.AMOUNT_EXPRESS, express.getAmount());
-            values.put(SQLiteDbHelper.CATEGORY_ID_EXPRESS, express.getCategoryName());
+            values.put(SQLiteDbHelper.CATEGORY_ID_EXPRESS, express.getCategoryName().trim());
 
             int result = db.update(
                     SQLiteDbHelper.TABLE_EXPRESS,
@@ -224,7 +226,8 @@ public class ExpressRepository {
             }
         }
     }
-    // ==================== PHẦN BÁO CÁO - THÊM VÀO CUỐI CLASS ====================
+
+    // ==================== PHẦN BÁO CÁO ====================
 
     /**
      * Lấy tổng chi tiêu theo khoảng thời gian
@@ -237,7 +240,7 @@ public class ExpressRepository {
         try {
             db = dbHelper.getReadableDatabase();
 
-            String query = "SELECT SUM(" + SQLiteDbHelper.AMOUNT_EXPRESS + ") as total " +
+            String query = "SELECT COALESCE(SUM(" + SQLiteDbHelper.AMOUNT_EXPRESS + "), 0) as total " +
                     "FROM " + SQLiteDbHelper.TABLE_EXPRESS +
                     " WHERE " + SQLiteDbHelper.USER_ID_EXPRESS + " = ? " +
                     "AND " + SQLiteDbHelper.DATE_EXPRESS + " >= ? " +
@@ -261,7 +264,8 @@ public class ExpressRepository {
     }
 
     /**
-     * Lấy báo cáo chi tiêu theo danh mục
+     * ✅ FIX: Lấy báo cáo chi tiêu theo danh mục
+     * Sử dụng TRIM() để so sánh chính xác
      */
     public List<ExpenseReport> getExpenseReportByCategory(int userId, String startDate, String endDate) {
         List<ExpenseReport> reportList = new ArrayList<>();
@@ -271,15 +275,15 @@ public class ExpressRepository {
         try {
             db = dbHelper.getReadableDatabase();
 
-            String query = "SELECT " + SQLiteDbHelper.CATEGORY_ID_EXPRESS + " as categoryName, " +
+            String query = "SELECT TRIM(" + SQLiteDbHelper.CATEGORY_ID_EXPRESS + ") as categoryName, " +
                     "SUM(" + SQLiteDbHelper.AMOUNT_EXPRESS + ") as totalAmount, " +
                     "COUNT(*) as transactionCount " +
                     "FROM " + SQLiteDbHelper.TABLE_EXPRESS +
                     " WHERE " + SQLiteDbHelper.USER_ID_EXPRESS + " = ? " +
                     "AND " + SQLiteDbHelper.DATE_EXPRESS + " >= ? " +
                     "AND " + SQLiteDbHelper.DATE_EXPRESS + " <= ? " +
-                    "GROUP BY " + SQLiteDbHelper.CATEGORY_ID_EXPRESS +
-                    " ORDER BY totalAmount DESC";
+                    "GROUP BY TRIM(" + SQLiteDbHelper.CATEGORY_ID_EXPRESS + ") " +
+                    "ORDER BY totalAmount DESC";
 
             cursor = db.rawQuery(query, new String[]{String.valueOf(userId), startDate, endDate});
 

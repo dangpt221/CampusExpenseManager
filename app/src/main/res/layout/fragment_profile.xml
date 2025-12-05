@@ -23,7 +23,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="👤 Hồ Sơ Cá Nhân"
+                android:text="👤 Profile"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/white" />
@@ -52,7 +52,7 @@
                 android:id="@+id/tv_student_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tên Sinh Viên"
+                android:text="Student name"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="#333333"
@@ -84,7 +84,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Điện thoại"
+                        android:text="Phone"
                         android:textSize="11sp"
                         android:textColor="#999999" />
 
@@ -108,7 +108,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Vai trò"
+                        android:text="Role"
                         android:textSize="11sp"
                         android:textColor="#999999" />
 
@@ -116,7 +116,7 @@
                         android:id="@+id/tv_role"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Người dùng"
+                        android:text="User"
                         android:textSize="13sp"
                         android:textColor="#333333"
                         android:textStyle="bold"
@@ -132,7 +132,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Trạng thái"
+                        android:text="Status"
                         android:textSize="11sp"
                         android:textColor="#999999" />
 
@@ -140,7 +140,7 @@
                         android:id="@+id/tv_status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="✅ Hoạt động"
+                        android:text="✅ Active"
                         android:textSize="13sp"
                         android:textColor="#4CAF50"
                         android:textStyle="bold"
@@ -153,7 +153,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="📊 Thống Kê"
+            android:text="📊 Statistics"
             android:textSize="18sp"
             android:textStyle="bold"
             android:textColor="#333333"
@@ -185,7 +185,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Chi năm nay"
+                    android:text="Spend this year"
                     android:textSize="11sp"
                     android:textColor="#999999"
                     android:layout_marginTop="8dp" />
@@ -220,7 +220,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Chi tháng này"
+                    android:text="Spend this month"
                     android:textSize="11sp"
                     android:textColor="#999999"
                     android:layout_marginTop="8dp" />
@@ -255,7 +255,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Trung bình"
+                    android:text="Average"
                     android:textSize="11sp"
                     android:textColor="#999999"
                     android:layout_marginTop="8dp" />
@@ -299,7 +299,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Giao dịch"
+                    android:text="Transactions"
                     android:textSize="11sp"
                     android:textColor="#999999"
                     android:layout_marginTop="8dp" />
@@ -334,7 +334,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Chi phổ biến"
+                    android:text="Top category"
                     android:textSize="11sp"
                     android:textColor="#999999"
                     android:layout_marginTop="8dp" />
@@ -372,7 +372,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Gần nhất"
+                    android:text="Recent"
                     android:textColor="#999999"
                     android:textSize="11sp" />
 
@@ -396,7 +396,7 @@
             android:id="@+id/btn_edit_profile"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:text="✏️ Chỉnh Sửa Hồ Sơ"
+            android:text="✏️ Edit Profile"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@android:color/white"
@@ -407,7 +407,7 @@
             android:id="@+id/btn_change_password"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="🔐 Đổi Mật Khẩu"
+            android:text="🔐 Change Password"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@android:color/white"
@@ -418,7 +418,7 @@
             android:id="@+id/btn_logout"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="🚪 Đăng Xuất"
+            android:text="🚪 Log out"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@android:color/white"

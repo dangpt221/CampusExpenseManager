@@ -24,7 +24,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="📊 Đặt Ngân Sách"
+                android:text="📊 Set Budget"
                 android:textSize="28sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/white"
@@ -33,7 +33,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Quản lý chi tiêu hàng tháng"
+                android:text="Manage monthly expenses"
                 android:textSize="14sp"
                 android:textColor="#F0F0F0"
                 android:gravity="center"
@@ -44,7 +44,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Chọn tháng"
+            android:text="Select month"
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#333333"
@@ -62,7 +62,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Chọn năm"
+            android:text="Select year"
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#333333"
@@ -79,7 +79,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tổng ngân sách"
+            android:text="Total budget"
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#333333"
@@ -124,7 +124,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ghi chú (không bắt buộc)"
+            android:text="Note (optional)"
             android:textSize="14sp"
             android:textStyle="bold"
             android:textColor="#333333"
@@ -135,7 +135,7 @@
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:background="@drawable/edit_text_background"
-            android:hint="Ghi chú về ngân sách..."
+            android:hint="Note about the budget..."
             android:inputType="textMultiLine"
             android:gravity="top|start"
             android:paddingStart="16dp"
@@ -159,7 +159,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="ℹ️ Thông tin"
+                android:text="ℹ️ Info"
                 android:textSize="12sp"
                 android:textStyle="bold"
                 android:textColor="#2E7D32"
@@ -168,7 +168,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ngân sách sẽ được chia đều cho 9 danh mục chi tiêu"
+                android:text="Budget will be split equally across 9 expense categories"
                 android:textSize="11sp"
                 android:textColor="#558B2F"/>
         </LinearLayout>
@@ -185,7 +185,7 @@
                 android:layout_width="0dp"
                 android:layout_height="56dp"
                 android:layout_weight="1"
-                android:text="Hủy"
+                android:text="Cancel"
                 android:textSize="16sp"
                 android:textColor="@android:color/white"
                 android:backgroundTint="#CCCCCC"
@@ -196,7 +196,7 @@
                 android:layout_width="0dp"
                 android:layout_height="56dp"
                 android:layout_weight="1"
-                android:text="✓ Thêm Ngân Sách"
+                android:text="✓ Add Budget"
                 android:textSize="16sp"
                 android:textColor="@android:color/white"
                 android:backgroundTint="#D3AE79"

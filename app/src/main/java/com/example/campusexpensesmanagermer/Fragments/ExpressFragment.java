@@ -50,13 +50,13 @@ public class ExpressFragment extends Fragment {
     private ExpressAdapter adapter;
     private List<Express> expressList;
 
-    private String selectedCategory = "Ăn uống";
+    private String selectedCategory = "Food";
     private static final String PREFS_NAME = "CampusExpensesPrefs";
     private static final String TAG = "ExpressFragment";
 
     private final String[] categories = {
-            "Ăn uống", "Giao thông", "Mua sắm", "Giải trí",
-            "Y tế", "Giáo dục", "Nhà ở", "Utilities", "Khác"
+            "Food", "Transport", "Shopping", "Entertainment",
+            "Health", "Education", "Housing", "Utilities", "Other"
     };
 
     public ExpressFragment() {
@@ -194,7 +194,7 @@ public class ExpressFragment extends Fragment {
 
         button.setOnClickListener(v -> {
             selectedCategory = category;
-            tvSelectedCategory.setText("Loại chi: " + category);
+            tvSelectedCategory.setText("Category: " + category);
             updateCategoryIconDisplay();
             setupCategoryIcons();
         });
@@ -205,31 +205,31 @@ public class ExpressFragment extends Fragment {
     private void setCategoryIcon(ImageView imageView, String category) {
         int iconResId, colorResId;
         switch (category) {
-            case "Ăn uống":
+            case "Food":
                 iconResId = android.R.drawable.ic_menu_info_details;
                 colorResId = android.R.color.holo_red_dark;
                 break;
-            case "Giao thông":
+            case "Transport":
                 iconResId = android.R.drawable.ic_menu_compass;
                 colorResId = android.R.color.holo_blue_dark;
                 break;
-            case "Mua sắm":
+            case "Shopping":
                 iconResId = android.R.drawable.ic_menu_agenda;
                 colorResId = android.R.color.holo_purple;
                 break;
-            case "Giải trí":
+            case "Entertainment":
                 iconResId = android.R.drawable.ic_menu_gallery;
                 colorResId = android.R.color.holo_green_dark;
                 break;
-            case "Y tế":
+            case "Health":
                 iconResId = android.R.drawable.ic_dialog_info;
                 colorResId = android.R.color.holo_red_light;
                 break;
-            case "Giáo dục":
+            case "Education":
                 iconResId = android.R.drawable.ic_menu_view;
                 colorResId = android.R.color.holo_blue_light;
                 break;
-            case "Nhà ở":
+            case "Housing":
                 iconResId = android.R.drawable.ic_input_get;
                 colorResId = android.R.color.darker_gray;
                 break;
@@ -251,7 +251,7 @@ public class ExpressFragment extends Fragment {
 
     private void updateDateDisplay() {
         String currentDate = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date());
-        tvDate.setText("Ngày: " + currentDate);
+        tvDate.setText("Date: " + currentDate);
     }
 
     private void saveExpense() {
@@ -261,18 +261,18 @@ public class ExpressFragment extends Fragment {
         String amountStr = edtAmount.getText().toString().trim();
 
         if (userId == 0) {
-            Toast.makeText(getContext(), "❌ Lỗi: Không tìm thấy User ID", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "❌ Error: User ID not found", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (TextUtils.isEmpty(expenseName)) {
-            edtExpenseName.setError("Vui lòng nhập tên chi tiêu");
+            edtExpenseName.setError("Please enter expense name");
             edtExpenseName.requestFocus();
             return;
         }
 
         if (TextUtils.isEmpty(amountStr)) {
-            edtAmount.setError("Vui lòng nhập số tiền");
+            edtAmount.setError("Please enter amount");
             edtAmount.requestFocus();
             return;
         }
@@ -280,7 +280,7 @@ public class ExpressFragment extends Fragment {
         try {
             double amount = Double.parseDouble(amountStr);
             if (amount <= 0) {
-                edtAmount.setError("Số tiền phải lớn hơn 0");
+                edtAmount.setError("Amount must be greater than 0");
                 edtAmount.requestFocus();
                 return;
             }
@@ -289,17 +289,17 @@ public class ExpressFragment extends Fragment {
             long result = expressRepository.addExpress(newExpense);
 
             if (result > 0) {
-                Toast.makeText(getContext(), "✅ Ghi lại chi tiêu thành công!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "✅ Expense saved successfully!", Toast.LENGTH_SHORT).show();
                 clearForm();
-                loadExpenses(); // Reload danh sách
+                loadExpenses(); // Reload list
             } else {
-                Toast.makeText(getContext(), "❌ Lỗi: Ghi lại thất bại", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "❌ Error: Failed to save expense", Toast.LENGTH_SHORT).show();
             }
         } catch (NumberFormatException e) {
-            edtAmount.setError("Số tiền không hợp lệ");
+            edtAmount.setError("Invalid amount");
             edtAmount.requestFocus();
         } catch (Exception e) {
-            Toast.makeText(getContext(), "❌ Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "❌ Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             Log.e(TAG, "Exception: " + e.getMessage());
         }
     }
@@ -307,8 +307,8 @@ public class ExpressFragment extends Fragment {
     private void clearForm() {
         edtExpenseName.setText("");
         edtAmount.setText("");
-        selectedCategory = "Ăn uống";
-        tvSelectedCategory.setText("Loại chi: Ăn uống");
+        selectedCategory = "Food";
+        tvSelectedCategory.setText("Category: Food");
         updateCategoryIconDisplay();
         setupCategoryIcons();
         edtExpenseName.requestFocus();

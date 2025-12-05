@@ -97,7 +97,7 @@ public class BudgetItemRepository {
             if (cursor != null && cursor.getCount() > 0) {
                 while (cursor.moveToNext()) {
                     BudgetItem item = cursorToBudgetItem(cursor);
-                    // Tính spent amount cho category này
+                    // ✅ FIX: Tính spent amount cho category này
                     item.setSpentAmount(getSpentAmountByCategory(budgetId, item.getCategoryName()));
                     list.add(item);
                 }
@@ -114,7 +114,8 @@ public class BudgetItemRepository {
     }
 
     /**
-     * Lấy spent amount cho một category trong budget
+     * ✅ FIX: Lấy spent amount cho một category trong budget
+     * Sử dụng TRIM() để tránh khoảng trắng
      */
     private double getSpentAmountByCategory(int budgetId, String categoryName) {
         SQLiteDatabase db = null;
@@ -128,6 +129,7 @@ public class BudgetItemRepository {
             Cursor budgetCursor = db.rawQuery(budgetQuery, new String[]{String.valueOf(budgetId)});
 
             if (budgetCursor == null || !budgetCursor.moveToFirst()) {
+                if (budgetCursor != null) budgetCursor.close();
                 return 0;
             }
 
@@ -136,23 +138,25 @@ public class BudgetItemRepository {
             int userId = budgetCursor.getInt(budgetCursor.getColumnIndexOrThrow(SQLiteDbHelper.USER_ID_BUDGET));
             budgetCursor.close();
 
-            // Tính tổng chi tiêu cho category trong tháng/năm
-            String query = "SELECT SUM(" + SQLiteDbHelper.AMOUNT_EXPRESS + ") as total " +
+            // ✅ FIX: So sánh chính xác CATEGORY_ID_EXPRESS với TRIM()
+            String query = "SELECT COALESCE(SUM(" + SQLiteDbHelper.AMOUNT_EXPRESS + "), 0) as total " +
                     "FROM " + SQLiteDbHelper.TABLE_EXPRESS +
                     " WHERE " + SQLiteDbHelper.USER_ID_EXPRESS + " = ? " +
-                    "AND " + SQLiteDbHelper.CATEGORY_ID_EXPRESS + " = ? " +
+                    "AND TRIM(" + SQLiteDbHelper.CATEGORY_ID_EXPRESS + ") = TRIM(?) " +
                     "AND strftime('%Y', " + SQLiteDbHelper.DATE_EXPRESS + ") = ? " +
                     "AND strftime('%m', " + SQLiteDbHelper.DATE_EXPRESS + ") = ?";
 
             cursor = db.rawQuery(query, new String[]{
                     String.valueOf(userId),
-                    categoryName,
+                    categoryName.trim(),  // ✅ Trim ở đây
                     String.valueOf(year),
                     String.format("%02d", month)
             });
 
             if (cursor != null && cursor.moveToFirst()) {
-                return cursor.getDouble(0);
+                double result = cursor.getDouble(0);
+                Log.d(TAG, "Spent for category '" + categoryName + "' in " + month + "/" + year + ": " + result);
+                return result;
             }
         } catch (Exception e) {
             Log.e(TAG, "✗ Error getting spent amount: " + e.getMessage());

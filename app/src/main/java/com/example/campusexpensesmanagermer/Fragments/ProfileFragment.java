@@ -82,7 +82,7 @@ public class ProfileFragment extends Fragment {
                                 saveAvatarToDatabase(avatarBase64);
                             } catch (IOException e) {
                                 Log.e(TAG, "Error loading image: " + e.getMessage());
-                                Toast.makeText(getContext(), "Lỗi tải ảnh", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getContext(), "Error loading image", Toast.LENGTH_SHORT).show();
                             }
                         }
                     }
@@ -155,7 +155,7 @@ public class ProfileFragment extends Fragment {
     // ==================== LOAD USER INFO ====================
     private void loadUserInfo() {
         try {
-            String username = prefs.getString("username", "Người dùng");
+            String username = prefs.getString("username", "User");
             String email = prefs.getString("email", "N/A");
             int role = prefs.getInt("role", 0);
 
@@ -165,8 +165,8 @@ public class ProfileFragment extends Fragment {
             tvUsername.setText(username);
             tvEmail.setText(email);
             tvPhone.setText(phone.isEmpty() ? "N/A" : phone);
-            tvRole.setText(role == 0 ? "Người dùng thường" : "Admin");
-            tvStatus.setText("✅ Hoạt động");
+            tvRole.setText(role == 0 ? "Regular user" : "Admin");
+            tvStatus.setText("✅ Active");
 
             Log.d(TAG, "✓ User info loaded");
         } catch (Exception e) {
@@ -198,10 +198,10 @@ public class ProfileFragment extends Fragment {
     // ==================== AVATAR ====================
     private void showChangeAvatarDialog() {
         new AlertDialog.Builder(getContext())
-                .setTitle("Đổi ảnh đại diện")
-                .setMessage("Chọn ảnh từ thư viện?")
-                .setPositiveButton("Chọn ảnh", (dialog, which) -> openGallery())
-                .setNegativeButton("Hủy", null)
+                .setTitle("Change avatar")
+                .setMessage("Select image from gallery?")
+                .setPositiveButton("Choose image", (dialog, which) -> openGallery())
+                .setNegativeButton("Cancel", null)
                 .show();
     }
 
@@ -246,11 +246,11 @@ public class ProfileFragment extends Fragment {
                     + " SET " + SQLiteDbHelper.AVATAR_PATH_USER + " = ? "
                     + " WHERE " + SQLiteDbHelper.ID_USER + " = ?";
             db.execSQL(sql, new Object[]{base64, userId});
-            Toast.makeText(getContext(), "✅ Đã cập nhật ảnh đại diện", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "✅ Avatar updated", Toast.LENGTH_SHORT).show();
             Log.d(TAG, "Avatar saved successfully");
         } catch (Exception e) {
             Log.e(TAG, "Error saving avatar: " + e.getMessage());
-            Toast.makeText(getContext(), "❌ Lỗi lưu ảnh", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "❌ Error saving image", Toast.LENGTH_SHORT).show();
         } finally {
             if (db != null) db.close();
         }
@@ -272,22 +272,22 @@ public class ProfileFragment extends Fragment {
         edtPhone.setText(currentPhone.equals("N/A") ? "" : currentPhone);
 
         new AlertDialog.Builder(getContext())
-                .setTitle("✏️ Chỉnh sửa hồ sơ")
+                .setTitle("✏️ Edit profile")
                 .setView(dialogView)
-                .setPositiveButton("Lưu", (dialog, which) -> {
+                .setPositiveButton("Save", (dialog, which) -> {
                     String newUsername = edtUsername.getText().toString().trim();
                     String newEmail = edtEmail.getText().toString().trim();
                     String newPhone = edtPhone.getText().toString().trim();
 
                     if (TextUtils.isEmpty(newUsername)) {
-                        Toast.makeText(getContext(), "Tên không được để trống",
+                        Toast.makeText(getContext(), "Name cannot be empty",
                                 Toast.LENGTH_SHORT).show();
                         return;
                     }
 
                     updateUserProfile(newUsername, newEmail, newPhone);
                 })
-                .setNegativeButton("Hủy", null)
+                .setNegativeButton("Cancel", null)
                 .show();
     }
 
@@ -312,11 +312,11 @@ public class ProfileFragment extends Fragment {
             // Refresh UI
             loadUserInfo();
 
-            Toast.makeText(getContext(), "✅ Cập nhật thành công", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "✅ Update successful", Toast.LENGTH_SHORT).show();
             Log.d(TAG, "Profile updated successfully");
         } catch (Exception e) {
             Log.e(TAG, "Error updating profile: " + e.getMessage());
-            Toast.makeText(getContext(), "❌ Lỗi cập nhật", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "❌ Update failed", Toast.LENGTH_SHORT).show();
         } finally {
             if (db != null) db.close();
         }
@@ -332,34 +332,34 @@ public class ProfileFragment extends Fragment {
         EditText edtConfirmPassword = dialogView.findViewById(R.id.edt_confirm_password);
 
         new AlertDialog.Builder(getContext())
-                .setTitle("🔐 Đổi mật khẩu")
+                .setTitle("🔐 Change password")
                 .setView(dialogView)
-                .setPositiveButton("Đổi", (dialog, which) -> {
+                .setPositiveButton("Change", (dialog, which) -> {
                     String oldPass = edtOldPassword.getText().toString().trim();
                     String newPass = edtNewPassword.getText().toString().trim();
                     String confirmPass = edtConfirmPassword.getText().toString().trim();
 
                     if (TextUtils.isEmpty(oldPass) || TextUtils.isEmpty(newPass)) {
-                        Toast.makeText(getContext(), "Vui lòng điền đầy đủ thông tin",
+                        Toast.makeText(getContext(), "Please fill in all fields",
                                 Toast.LENGTH_SHORT).show();
                         return;
                     }
 
                     if (!newPass.equals(confirmPass)) {
-                        Toast.makeText(getContext(), "Mật khẩu mới không khớp",
+                        Toast.makeText(getContext(), "New password does not match",
                                 Toast.LENGTH_SHORT).show();
                         return;
                     }
 
                     if (newPass.length() < 6) {
-                        Toast.makeText(getContext(), "Mật khẩu phải ít nhất 6 ký tự",
+                        Toast.makeText(getContext(), "Password must be at least 6 characters",
                                 Toast.LENGTH_SHORT).show();
                         return;
                     }
 
                     changePassword(oldPass, newPass);
                 })
-                .setNegativeButton("Hủy", null)
+                .setNegativeButton("Cancel", null)
                 .show();
     }
 
@@ -378,7 +378,7 @@ public class ProfileFragment extends Fragment {
                 String currentPassword = cursor.getString(0);
 
                 if (!oldPassword.equals(currentPassword)) {
-                    Toast.makeText(getContext(), "❌ Mật khẩu cũ không đúng",
+                    Toast.makeText(getContext(), "❌ Old password is incorrect",
                             Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -391,13 +391,13 @@ public class ProfileFragment extends Fragment {
 
                 db.execSQL(sql, new Object[]{newPassword, userId});
 
-                Toast.makeText(getContext(), "✅ Đổi mật khẩu thành công",
+                Toast.makeText(getContext(), "✅ Password changed successfully",
                         Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "Password changed successfully");
             }
         } catch (Exception e) {
             Log.e(TAG, "Error changing password: " + e.getMessage());
-            Toast.makeText(getContext(), "❌ Lỗi đổi mật khẩu", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "❌ Error changing password", Toast.LENGTH_SHORT).show();
         } finally {
             if (cursor != null) cursor.close();
             if (db != null) db.close();
@@ -533,7 +533,7 @@ public class ProfileFragment extends Fragment {
 
             if (cursor.moveToFirst()) {
                 String category = cursor.getString(0);
-                return category != null ? category : "Chưa có dữ liệu";
+                return category != null ? category : "No data";
             }
         } catch (Exception e) {
             Log.e(TAG, "Error: " + e.getMessage());
@@ -541,7 +541,7 @@ public class ProfileFragment extends Fragment {
             if (cursor != null) cursor.close();
             if (db != null) db.close();
         }
-        return "Chưa có dữ liệu";
+        return "No data";
     }
 
     private String getLastExpense() {
@@ -568,16 +568,16 @@ public class ProfileFragment extends Fragment {
             if (cursor != null) cursor.close();
             if (db != null) db.close();
         }
-        return "Chưa có dữ liệu";
+        return "No data";
     }
 
     // ==================== LOGOUT ====================
     private void showLogoutConfirmDialog() {
         new AlertDialog.Builder(getContext())
-                .setTitle("Xác nhận đăng xuất")
-                .setMessage("Bạn có chắc muốn đăng xuất?")
-                .setPositiveButton("Đăng xuất", (dialog, which) -> logout())
-                .setNegativeButton("Hủy", null)
+                .setTitle("Confirm logout")
+                .setMessage("Are you sure you want to log out?")
+                .setPositiveButton("Log out", (dialog, which) -> logout())
+                .setNegativeButton("Cancel", null)
                 .show();
     }
 
@@ -587,7 +587,7 @@ public class ProfileFragment extends Fragment {
             editor.clear();
             editor.apply();
 
-            Toast.makeText(getContext(), "✅ Đăng xuất thành công", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "✅ Logged out successfully", Toast.LENGTH_SHORT).show();
 
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -595,7 +595,7 @@ public class ProfileFragment extends Fragment {
             requireActivity().finish();
         } catch (Exception e) {
             Log.e(TAG, "Error logging out: " + e.getMessage());
-            Toast.makeText(getContext(), "❌ Lỗi đăng xuất", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "❌ Error logging out", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -642,3 +642,4 @@ public class ProfileFragment extends Fragment {
         loadStatistics();
     }
 }
+

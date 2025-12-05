@@ -14,7 +14,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
@@ -73,6 +72,7 @@ public class BudgetFragment extends Fragment implements BudgetAdapter.OnBudgetIt
             currentMonth = Calendar.getInstance().get(Calendar.MONTH) + 1;
             currentYear = Calendar.getInstance().get(Calendar.YEAR);
 
+            Log.d(TAG, "✓ onCreate - userId: " + userId + ", Current Month: " + currentMonth + "/" + currentYear);
         } catch (Exception e) {
             Log.e(TAG, "✗ Error in onCreate: " + e.getMessage(), e);
         }
@@ -87,6 +87,7 @@ public class BudgetFragment extends Fragment implements BudgetAdapter.OnBudgetIt
             initViews(view);
             setupRecyclerView();
             setupListeners();
+            loadBudgetData();
         } catch (Exception e) {
             Log.e(TAG, "✗ Error in onCreateView: " + e.getMessage(), e);
         }
@@ -122,25 +123,58 @@ public class BudgetFragment extends Fragment implements BudgetAdapter.OnBudgetIt
         btnNextMonth.setOnClickListener(v -> changeMonth(1));
     }
 
+    /**
+     * ✅ FIX: Load budget data với logic chính xác
+     */
     private void loadBudgetData() {
         if (userId == 0) {
+            Log.e(TAG, "userId is 0, cannot load budget");
             showEmptyState(true);
             return;
         }
 
         try {
             updateMonthDisplay();
+
+            // ✅ Lấy budget từ database
             currentBudget = budgetRepository.getBudgetByUserAndMonth(userId, currentMonth, currentYear);
 
             if (currentBudget == null) {
+                Log.d(TAG, "No budget found for " + currentMonth + "/" + currentYear);
                 showEmptyState(true);
                 return;
             }
 
+            Log.d(TAG, "✓ Budget loaded: Total=" + currentBudget.getMoney() + ", Spent=" + currentBudget.getSpent());
+
+            // Load budget items
+            List<BudgetItem> items = budgetItemRepository.getBudgetItemsByBudget(currentBudget.getId());
+            budgetItems.clear();
+            budgetItems.addAll(items);
+            budgetAdapter.notifyDataSetChanged();
+
+            Log.d(TAG, "✓ Loaded " + items.size() + " budget items");
+
+            // ✅ Tính tổng đã chi từ các mục (đảm bảo đồng bộ giữa tổng và danh mục)
+            double totalSpentFromItems = 0;
+            for (BudgetItem bi : items) {
+                totalSpentFromItems += bi.getSpentAmount();
+            }
+
+            // Nếu repository trả về giá trị khác (ví dụ tính từ express), ưu tiên giá trị từ DB (tổng các mục)
+            if (totalSpentFromItems > 0) {
+                currentBudget.setSpent(totalSpentFromItems);
+            } else {
+                // Fallback: nếu không có mục hoặc tổng bằng 0 thì dùng giá trị tính sẵn
+                currentBudget.setSpent(budgetRepository.getTotalSpentByBudget(currentBudget.getId()));
+            }
+
+            // Hiển thị tổng ngân sách và đã chi sau khi đồng bộ
             tvTotalBudget.setText(String.format(Locale.getDefault(), "%,.0f ₫", currentBudget.getMoney()));
             tvTotalSpent.setText(String.format(Locale.getDefault(), "%,.0f ₫", currentBudget.getSpent()));
             tvRemaining.setText(String.format(Locale.getDefault(), "%,.0f ₫", currentBudget.getRemaining()));
 
+            // ✅ Thay đổi màu nếu vượt quá
             if (currentBudget.isExceeded()) {
                 tvRemaining.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
                 tvTotalSpent.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_red_dark));
@@ -149,28 +183,27 @@ public class BudgetFragment extends Fragment implements BudgetAdapter.OnBudgetIt
                 tvTotalSpent.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.holo_orange_dark));
             }
 
+            // ✅ Progress bar cập nhật theo tổng mới
             budgetProgressBar.setProgress(currentBudget.getProgressPercentage());
 
-            List<BudgetItem> items = budgetItemRepository.getBudgetItemsByBudget(currentBudget.getId());
-            budgetItems.clear();
-            budgetItems.addAll(items);
-            budgetAdapter.notifyDataSetChanged();
 
             if (items.isEmpty()) {
-                showEmptyState(false);
+                rvBudgetItems.setVisibility(View.GONE);
+                tvEmptyState.setVisibility(View.VISIBLE);
             } else {
                 rvBudgetItems.setVisibility(View.VISIBLE);
                 tvEmptyState.setVisibility(View.GONE);
             }
         } catch (Exception e) {
             Log.e(TAG, "✗ Error loading budget: " + e.getMessage(), e);
+            showEmptyState(true);
         }
     }
 
     private void updateMonthDisplay() {
-        String[] months = {"Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
-                "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"};
-        tvCurrentMonth.setText(String.format("%s năm %d", months[currentMonth - 1], currentYear));
+        String[] months = {"Month 1", "Month 2", "Month 3", "Month 4", "Month 5", "Month 6",
+                "Month 7", "Month 8", "Month 9", "Month 10", "Month 11", "Month 12"};
+        tvCurrentMonth.setText(String.format(Locale.getDefault(), "%s %d", months[currentMonth - 1], currentYear));
     }
 
     private void showEmptyState(boolean isTotalBudgetEmpty) {
@@ -196,6 +229,7 @@ public class BudgetFragment extends Fragment implements BudgetAdapter.OnBudgetIt
             currentMonth = 1;
             currentYear++;
         }
+        Log.d(TAG, "Month changed to: " + currentMonth + "/" + currentYear);
         loadBudgetData();
     }
 
@@ -207,47 +241,32 @@ public class BudgetFragment extends Fragment implements BudgetAdapter.OnBudgetIt
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        
-        if (requestCode == ADD_BUDGET_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
-            Log.d(TAG, "✓ Received successful result from AddBudgetActivity.");
 
-            // If AddBudgetActivity provided the exact created budget id, load that budget by id
+        if (requestCode == ADD_BUDGET_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            Log.d(TAG, "✓ Received result from AddBudgetActivity");
+
             int createdBudgetId = data.getIntExtra(AddBudgetActivity.EXTRA_BUDGET_ID, -1);
             if (createdBudgetId > 0) {
-                Log.d(TAG, "Loading newly created budget by id: " + createdBudgetId);
+                Log.d(TAG, "Loading newly created budget ID: " + createdBudgetId);
                 currentBudget = budgetRepository.getBudgetById(createdBudgetId);
                 if (currentBudget != null) {
                     currentMonth = currentBudget.getMonth();
                     currentYear = currentBudget.getYear();
 
-                    tvTotalBudget.setText(String.format(Locale.getDefault(), "%,.0f ₫", currentBudget.getMoney()));
-                    tvTotalSpent.setText(String.format(Locale.getDefault(), "%,.0f ₫", currentBudget.getSpent()));
-                    tvRemaining.setText(String.format(Locale.getDefault(), "%,.0f ₫", currentBudget.getRemaining()));
-
-                    budgetProgressBar.setProgress(currentBudget.getProgressPercentage());
-
-                    List<BudgetItem> items = budgetItemRepository.getBudgetItemsByBudget(currentBudget.getId());
-                    budgetItems.clear();
-                    budgetItems.addAll(items);
-                    budgetAdapter.notifyDataSetChanged();
-
-                    rvBudgetItems.setVisibility(items.isEmpty() ? View.GONE : View.VISIBLE);
-                    tvEmptyState.setVisibility(items.isEmpty() ? View.VISIBLE : View.GONE);
-
-                    updateMonthDisplay();
-                    return; // done
+                    Log.d(TAG, "✓ Loaded new budget: " + currentMonth + "/" + currentYear);
+                    loadBudgetData();
+                    return;
                 }
             }
 
-            // Fallback: use month/year passed back by the activity
+            // ✅ Fallback: Dùng tháng/năm từ intent
             int newMonth = data.getIntExtra(AddBudgetActivity.EXTRA_MONTH, currentMonth);
             int newYear = data.getIntExtra(AddBudgetActivity.EXTRA_YEAR, currentYear);
 
             currentMonth = newMonth;
             currentYear = newYear;
 
-            Log.d(TAG, "Jumping to new budget month: " + currentMonth + "/" + currentYear);
-
+            Log.d(TAG, "Jumping to month: " + currentMonth + "/" + currentYear);
             loadBudgetData();
         }
     }
@@ -257,57 +276,42 @@ public class BudgetFragment extends Fragment implements BudgetAdapter.OnBudgetIt
         showEditDialog(item);
     }
 
-    @Override
-    public void onDelete(BudgetItem item) {
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Xóa danh mục ngân sách")
-                .setMessage("Bạn có chắc chắn muốn xóa danh mục \"" + item.getCategoryName() + "\"?")
-                .setPositiveButton("Xóa", (dialog, which) -> {
-                    if (budgetItemRepository.deleteBudgetItem(item.getId())) {
-                        Toast.makeText(getContext(), "✅ Xóa thành công", Toast.LENGTH_SHORT).show();
-                        loadBudgetData();
-                    } else {
-                        Toast.makeText(getContext(), "❌ Xóa thất bại", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNegativeButton("Hủy", null)
-                .show();
-    }
 
     private void showEditDialog(final BudgetItem item) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        builder.setTitle("Sửa ngân sách cho " + item.getCategoryName());
+        builder.setTitle("Edit budget for " + item.getCategoryName());
 
         final EditText input = new EditText(getContext());
         input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
         input.setText(String.valueOf((int) item.getAllocatedAmount()));
-        input.setHint("Nhập số tiền");
+        input.setHint("Enter amount");
 
         builder.setView(input);
-        builder.setPositiveButton("Lưu", (dialog, which) -> {
+        builder.setPositiveButton("Save", (dialog, which) -> {
             String newAmount = input.getText().toString();
             if (!newAmount.isEmpty()) {
                 try {
                     double amount = Double.parseDouble(newAmount);
                     item.setAllocatedAmount(amount);
                     if (budgetItemRepository.updateBudgetItem(item)) {
-                        Toast.makeText(getContext(), "✅ Cập nhật thành công", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "✅ Update successful", Toast.LENGTH_SHORT).show();
                         loadBudgetData();
                     } else {
-                        Toast.makeText(getContext(), "❌ Cập nhật thất bại", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "❌ Update failed", Toast.LENGTH_SHORT).show();
                     }
                 } catch (NumberFormatException e) {
-                    Toast.makeText(getContext(), "❌ Số tiền không hợp lệ", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "❌ Invalid amount", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-        builder.setNegativeButton("Hủy", null);
+        builder.setNegativeButton("Cancel", null);
         builder.show();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        loadBudgetData();
+        Log.d(TAG, "✓ onResume - Reloading budget data");
+        loadBudgetData();  // ✅ Reload khi quay lại fragment
     }
 }
