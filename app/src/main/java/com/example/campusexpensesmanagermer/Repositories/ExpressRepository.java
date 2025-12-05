@@ -97,7 +97,7 @@ public class ExpressRepository {
                     selectionArgs,
                     null,
                     null,
-                    SQLiteDbHelper.ID_EXPRESS + " DESC"
+                    SQLiteDbHelper.DATE_EXPRESS + " DESC, " + SQLiteDbHelper.ID_EXPRESS + " DESC"
             );
 
             if (cursor != null && cursor.getCount() > 0) {
@@ -108,6 +108,7 @@ public class ExpressRepository {
                     e.setAmount(cursor.getDouble(cursor.getColumnIndexOrThrow(SQLiteDbHelper.AMOUNT_EXPRESS)));
                     e.setCategoryName(cursor.getString(cursor.getColumnIndexOrThrow(SQLiteDbHelper.CATEGORY_ID_EXPRESS)));
                     e.setUserId(cursor.getInt(cursor.getColumnIndexOrThrow(SQLiteDbHelper.USER_ID_EXPRESS)));
+                    e.setDate(cursor.getString(cursor.getColumnIndexOrThrow(SQLiteDbHelper.DATE_EXPRESS)));
                     list.add(e);
                 }
                 Log.d(TAG, "✓ Loaded " + list.size() + " expenses for userId: " + userId);
