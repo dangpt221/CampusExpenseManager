@@ -100,4 +100,17 @@ public class UserRepository extends SQLiteDbHelper {
         // Nếu result == -1 là lỗi, result > 0 là thành công
         return result != -1;
     }
+    // Thêm vào trong class UserRepository.java
+
+    public boolean verifyUserAndEmail(String username, String email) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        // Giả sử tên bảng là 'users', cột là 'username' và 'email'
+        // Bạn hãy sửa lại tên bảng/cột cho khớp với database của bạn
+        String query = "SELECT * FROM users WHERE username = ? AND email = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{username, email});
+
+        boolean exists = cursor.getCount() > 0;
+        cursor.close();
+        return exists;
+    }
 }
