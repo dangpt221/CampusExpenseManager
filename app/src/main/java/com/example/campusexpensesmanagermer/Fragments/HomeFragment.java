@@ -141,8 +141,19 @@ public class HomeFragment extends Fragment {
 
             if (budget != null) {
                 totalBudget = budget.getMoney();
-                spent = budget.getSpent();
-                Log.d(TAG, "Budget found: " + totalBudget + ", Spent: " + spent);
+                // ✅ FIX: Recalculate spent from expenses to ensure accuracy (like BudgetFragment)
+                // First try to get spent from budget calculation
+                double spentFromBudget = budgetRepository.getTotalSpentByBudget(budget.getId());
+                Log.d(TAG, "Spent from getTotalSpentByBudget: " + spentFromBudget);
+                
+                // Also try calculateMonthlySpent as fallback
+                double spentFromMonthly = calculateMonthlySpent();
+                Log.d(TAG, "Spent from calculateMonthlySpent: " + spentFromMonthly);
+                
+                // Use the larger value (should be the same, but ensure we get the correct one)
+                spent = Math.max(spentFromBudget, spentFromMonthly);
+                
+                Log.d(TAG, "Budget found: " + totalBudget + ", Final Spent: " + spent);
             } else {
                 // If no budget, calculate total spent this month
                 spent = calculateMonthlySpent();
@@ -241,16 +252,30 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupCharts() {
+        // Initialize charts with default settings
+        if (pieChart != null) {
+            pieChart.setNoDataText("Chưa có dữ liệu chi tiêu");
+            pieChart.setNoDataTextColor(Color.GRAY);
+            pieChart.setUsePercentValues(false);
+            pieChart.getDescription().setEnabled(false);
+        }
+        
+        if (barChart != null) {
+            barChart.setNoDataText("Chưa có dữ liệu chi tiêu");
+            barChart.setNoDataTextColor(Color.GRAY);
+            barChart.getDescription().setEnabled(false);
+        }
+        
         // Setup chart toggle buttons
         if (btnPieChart != null && btnBarChart != null) {
             btnPieChart.setOnClickListener(v -> {
-                pieChart.setVisibility(View.VISIBLE);
-                barChart.setVisibility(View.GONE);
+                if (pieChart != null) pieChart.setVisibility(View.VISIBLE);
+                if (barChart != null) barChart.setVisibility(View.GONE);
             });
 
             btnBarChart.setOnClickListener(v -> {
-                pieChart.setVisibility(View.GONE);
-                barChart.setVisibility(View.VISIBLE);
+                if (pieChart != null) pieChart.setVisibility(View.GONE);
+                if (barChart != null) barChart.setVisibility(View.VISIBLE);
             });
         }
 
@@ -270,14 +295,11 @@ public class HomeFragment extends Fragment {
             int currentMonth = calendar.get(Calendar.MONTH) + 1;
             int currentYear = calendar.get(Calendar.YEAR);
 
-            String startDate = String.format(Locale.getDefault(), "%d-%02d-01 00:00:00", currentYear, currentMonth);
-            calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-            String endDate = String.format(Locale.getDefault(), "%d-%02d-%02d 23:59:59",
-                    currentYear, currentMonth, calendar.get(Calendar.DAY_OF_MONTH));
-
-            Log.d(TAG, "Loading chart data from " + startDate + " to " + endDate);
+            Log.d(TAG, "Loading chart data for month: " + currentMonth + "/" + currentYear);
+            Log.d(TAG, "UserId for chart: " + userId);
             
-            List<ExpenseReport> reports = expressRepository.getExpenseReportByCategory(userId, startDate, endDate);
+            // ✅ FIX: Use strftime() method like BudgetRepository for accurate date filtering
+            List<ExpenseReport> reports = getExpenseReportByCategoryUsingStrftime(userId, currentMonth, currentYear);
 
             Log.d(TAG, "Chart data loaded: " + (reports != null ? reports.size() : 0) + " categories");
             
@@ -286,8 +308,16 @@ public class HomeFragment extends Fragment {
                 for (ExpenseReport report : reports) {
                     Log.d(TAG, "Category: " + report.getCategoryName() + ", Amount: " + report.getTotalAmount());
                 }
+                // ✅ FIX: Setup both charts with data
                 setupPieChart(reports);
                 setupBarChart(reports);
+                
+                // Ensure charts are visible
+                if (pieChart != null && pieChart.getVisibility() != View.VISIBLE && barChart != null && barChart.getVisibility() != View.VISIBLE) {
+                    // Default to pie chart if neither is visible
+                    pieChart.setVisibility(View.VISIBLE);
+                    barChart.setVisibility(View.GONE);
+                }
             } else {
                 Log.w(TAG, "No chart data found for current month, showing empty chart");
                 showEmptyChart();
@@ -297,6 +327,64 @@ public class HomeFragment extends Fragment {
             e.printStackTrace();
             showEmptyChart();
         }
+    }
+    
+    /**
+     * ✅ FIX: Get expense report by category using strftime() for accurate date filtering
+     * Similar to BudgetRepository.getTotalSpentByBudget()
+     */
+    private List<ExpenseReport> getExpenseReportByCategoryUsingStrftime(int userId, int month, int year) {
+        List<ExpenseReport> reportList = new ArrayList<>();
+        android.database.sqlite.SQLiteDatabase db = null;
+        android.database.Cursor cursor = null;
+
+        try {
+            // Get database using SQLiteDbHelper
+            com.example.campusexpensesmanagermer.Data.SQLiteDbHelper dbHelper = 
+                new com.example.campusexpensesmanagermer.Data.SQLiteDbHelper(requireContext());
+            db = dbHelper.getReadableDatabase();
+            
+            if (db == null) {
+                Log.e(TAG, "Database is null");
+                return reportList;
+            }
+
+            // ✅ Use strftime() like BudgetRepository for accurate month/year filtering
+            String query = "SELECT TRIM(" + com.example.campusexpensesmanagermer.Data.SQLiteDbHelper.CATEGORY_ID_EXPRESS + ") as categoryName, " +
+                    "SUM(" + com.example.campusexpensesmanagermer.Data.SQLiteDbHelper.AMOUNT_EXPRESS + ") as totalAmount, " +
+                    "COUNT(*) as transactionCount " +
+                    "FROM " + com.example.campusexpensesmanagermer.Data.SQLiteDbHelper.TABLE_EXPRESS +
+                    " WHERE " + com.example.campusexpensesmanagermer.Data.SQLiteDbHelper.USER_ID_EXPRESS + " = ? " +
+                    "AND strftime('%Y', " + com.example.campusexpensesmanagermer.Data.SQLiteDbHelper.DATE_EXPRESS + ") = ? " +
+                    "AND strftime('%m', " + com.example.campusexpensesmanagermer.Data.SQLiteDbHelper.DATE_EXPRESS + ") = ? " +
+                    "GROUP BY TRIM(" + com.example.campusexpensesmanagermer.Data.SQLiteDbHelper.CATEGORY_ID_EXPRESS + ") " +
+                    "ORDER BY totalAmount DESC";
+
+            cursor = db.rawQuery(query, new String[]{
+                    String.valueOf(userId),
+                    String.valueOf(year),
+                    String.format(Locale.getDefault(), "%02d", month)
+            });
+
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    ExpenseReport report = new ExpenseReport();
+                    report.setCategoryName(cursor.getString(0));
+                    report.setTotalAmount(cursor.getDouble(1));
+                    report.setTransactionCount(cursor.getInt(2));
+                    reportList.add(report);
+                }
+                Log.d(TAG, "✓ Loaded " + reportList.size() + " category reports using strftime");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "✗ Error getExpenseReportByCategoryUsingStrftime: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            if (cursor != null) cursor.close();
+            if (db != null) db.close();
+        }
+
+        return reportList;
     }
 
     private void setupPieChart(List<ExpenseReport> reports) {
@@ -384,6 +472,7 @@ public class HomeFragment extends Fragment {
 
             pieChart.animateY(1000);
             pieChart.invalidate();
+            pieChart.setVisibility(View.VISIBLE);
             
             Log.d(TAG, "Pie chart setup completed with " + entries.size() + " entries");
         } catch (Exception e) {
@@ -463,6 +552,7 @@ public class HomeFragment extends Fragment {
 
             barChart.animateY(1000);
             barChart.invalidate();
+            barChart.setVisibility(View.GONE); // Keep hidden until user switches
             
             Log.d(TAG, "Bar chart setup completed with " + entries.size() + " entries");
         } catch (Exception e) {
