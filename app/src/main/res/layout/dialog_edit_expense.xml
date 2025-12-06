@@ -5,21 +5,22 @@
     android:orientation="vertical"
     android:padding="20dp">
 
+    <!-- Title -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Username"
+        android:text="Expense Name"
         android:textSize="14sp"
         android:textStyle="bold"
         android:textColor="#333333"
         android:layout_marginBottom="8dp" />
 
     <EditText
-        android:id="@+id/edt_username"
+        android:id="@+id/edt_edit_title"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@drawable/edit_text_background"
-        android:hint="Enter username"
+        android:hint="Enter expense name"
         android:inputType="text"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
@@ -27,47 +28,44 @@
         android:layout_marginBottom="16dp"
         android:importantForAutofill="no" />
 
+    <!-- Amount -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Email"
+        android:text="Amount"
         android:textSize="14sp"
         android:textStyle="bold"
         android:textColor="#333333"
         android:layout_marginBottom="8dp" />
 
     <EditText
-        android:id="@+id/edt_email"
+        android:id="@+id/edt_edit_amount"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@drawable/edit_text_background"
-        android:hint="Enter email"
-        android:inputType="textEmailAddress"
+        android:hint="Enter amount"
+        android:inputType="numberDecimal"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:textSize="16sp"
         android:layout_marginBottom="16dp"
         android:importantForAutofill="no" />
 
+    <!-- Category -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Phone Number"
+        android:text="Category"
         android:textSize="14sp"
         android:textStyle="bold"
         android:textColor="#333333"
         android:layout_marginBottom="8dp" />
 
-    <EditText
-        android:id="@+id/edt_phone"
+    <Spinner
+        android:id="@+id/spinner_edit_category"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@drawable/edit_text_background"
-        android:hint="Enter phone number"
-        android:inputType="phone"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:textSize="16sp"
-        android:importantForAutofill="no" />
+        android:layout_marginBottom="16dp"/>
 
 </LinearLayout>

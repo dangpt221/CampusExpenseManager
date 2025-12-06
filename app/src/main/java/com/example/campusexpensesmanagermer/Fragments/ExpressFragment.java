@@ -116,11 +116,21 @@ public class ExpressFragment extends Fragment {
         expressList = new ArrayList<>();
         adapter = new ExpressAdapter(getContext(), expressList);
 
+        // ✨ NEW: Set listener để reload data khi có thay đổi
+        adapter.setOnExpenseChangeListener(new ExpressAdapter.OnExpenseChangeListener() {
+            @Override
+            public void onExpenseChanged() {
+                // Reload expenses list
+                loadExpenses();
+            }
+        });
+
         rvExpenses.setLayoutManager(new LinearLayoutManager(getContext()));
         rvExpenses.setAdapter(adapter);
 
-        Log.d(TAG, "✓ RecyclerView setup");
+        Log.d(TAG, "✓ RecyclerView setup with edit/delete functionality");
     }
+
 
     private void loadExpenses() {
         if (userId == 0) {

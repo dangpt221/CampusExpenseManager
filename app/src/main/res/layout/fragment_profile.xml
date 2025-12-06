@@ -46,13 +46,13 @@
                 android:layout_height="100dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_launcher_foreground"
-                android:contentDescription="Avatar" />
+                android:contentDescription="User Avatar" />
 
             <TextView
                 android:id="@+id/tv_student_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Student name"
+                android:text="Student Name"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="#333333"
@@ -185,7 +185,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Spend this year"
+                    android:text="Yearly Spending"
                     android:textSize="11sp"
                     android:textColor="#999999"
                     android:layout_marginTop="8dp" />
@@ -220,7 +220,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Spend this month"
+                    android:text="Monthly Spending"
                     android:textSize="11sp"
                     android:textColor="#999999"
                     android:layout_marginTop="8dp" />
@@ -334,7 +334,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Top category"
+                    android:text="Top Category"
                     android:textSize="11sp"
                     android:textColor="#999999"
                     android:layout_marginTop="8dp" />
@@ -372,7 +372,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Recent"
+                    android:text="Last Expense"
                     android:textColor="#999999"
                     android:textSize="11sp" />
 
@@ -418,7 +418,7 @@
             android:id="@+id/btn_logout"
             android:layout_width="match_parent"
             android:layout_height="56dp"
-            android:text="🚪 Log out"
+            android:text="🚪 Log Out"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="@android:color/white"

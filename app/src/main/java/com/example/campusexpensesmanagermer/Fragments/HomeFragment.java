@@ -194,24 +194,29 @@ public class HomeFragment extends Fragment {
         return expressRepository.getTotalExpenseByPeriod(userId, startDate, endDate);
     }
 
+    // Trong setupRecyclerView(), thêm:
+
     private void setupRecyclerView() {
         try {
-            // Get recent expenses (limit to 5, sorted by date DESC)
             List<Express> allExpenses = expressRepository.getAllExpressByUser(userId);
             List<Express> recentExpenses = new ArrayList<>();
 
             if (allExpenses != null && !allExpenses.isEmpty()) {
-                // Expenses are already sorted by date DESC from repository
                 int limit = Math.min(5, allExpenses.size());
                 for (int i = 0; i < limit; i++) {
                     recentExpenses.add(allExpenses.get(i));
                 }
-                Log.d(TAG, "Loaded " + recentExpenses.size() + " recent expenses");
-            } else {
-                Log.d(TAG, "No expenses found");
             }
 
             adapter = new ExpressAdapter(requireContext(), recentExpenses);
+
+            // ✨ NEW: Set listener
+            adapter.setOnExpenseChangeListener(() -> {
+                // Reload home data
+                loadData();
+                setupRecyclerView();
+            });
+
             if (rvRecentExpenses != null) {
                 rvRecentExpenses.setLayoutManager(new LinearLayoutManager(requireContext()));
                 rvRecentExpenses.setAdapter(adapter);
@@ -219,7 +224,6 @@ public class HomeFragment extends Fragment {
             }
         } catch (Exception e) {
             Log.e(TAG, "Error setting up RecyclerView: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 

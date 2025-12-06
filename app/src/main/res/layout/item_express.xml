@@ -21,7 +21,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Tên chi tiêu"
+            android:text="Expense Name"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="#333333"
@@ -51,7 +51,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:layout_marginBottom="12dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -62,7 +63,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Loại chi"
+                android:text="Category"
                 android:textSize="11sp"
                 android:textColor="#999999"/>
 
@@ -70,7 +71,7 @@
                 android:id="@+id/tvCategory"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Ăn uống"
+                android:text="Food"
                 android:textSize="13sp"
                 android:textColor="#666666"
                 android:textStyle="bold"
@@ -87,7 +88,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ngày"
+                android:text="Date"
                 android:textSize="11sp"
                 android:textColor="#999999"/>
 
@@ -101,6 +102,37 @@
                 android:textStyle="bold"
                 android:layout_marginTop="2dp"/>
         </LinearLayout>
+    </LinearLayout>
+
+    <!-- ✨ NEW: Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/btnEdit"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="✏️ Edit"
+            android:textSize="12sp"
+            android:textColor="#4CAF50"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"/>
+
+        <Button
+            android:id="@+id/btnDelete"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="🗑️ Delete"
+            android:textSize="12sp"
+            android:textColor="#F44336"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:layout_marginStart="8dp"/>
     </LinearLayout>
 
 </LinearLayout>
