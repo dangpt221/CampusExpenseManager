@@ -1,5 +1,6 @@
 package com.example.campusexpensesmanagermer.Fragments;
 
+import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
@@ -30,6 +31,7 @@ import com.example.campusexpensesmanagermer.Repositories.ExpressRepository;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -38,7 +40,7 @@ public class ExpressFragment extends Fragment {
 
     private EditText edtExpenseName, edtAmount;
     private Button btnAddExpense, btnClear;
-    private LinearLayout categoryContainer;
+    private LinearLayout categoryContainer, layoutDatePicker;
     private TextView tvSelectedCategory, tvDate, tvEmptyState;
     private ImageView imgCategory;
     private RecyclerView rvExpenses;
@@ -51,6 +53,8 @@ public class ExpressFragment extends Fragment {
     private List<Express> expressList;
 
     private String selectedCategory = "Food";
+    private Calendar selectedCalendar = Calendar.getInstance(); // ✨ NEW: Store selected date
+
     private static final String PREFS_NAME = "CampusExpensesPrefs";
     private static final String TAG = "ExpressFragment";
 
@@ -90,6 +94,7 @@ public class ExpressFragment extends Fragment {
             tvSelectedCategory = view.findViewById(R.id.tvSelectedCategory);
             tvDate = view.findViewById(R.id.tvDate);
             imgCategory = view.findViewById(R.id.imgCategory);
+            layoutDatePicker = view.findViewById(R.id.layoutDatePicker); // ✨ NEW
 
             // RecyclerView for list
             rvExpenses = view.findViewById(R.id.rvExpenses);
@@ -98,7 +103,8 @@ public class ExpressFragment extends Fragment {
             updateDateDisplay();
             setupCategoryIcons();
             setupRecyclerView();
-            loadExpenses(); // Load dữ liệu khi mở fragment
+            loadExpenses();
+            setupDatePicker(); // ✨ NEW
 
             btnAddExpense.setOnClickListener(v -> saveExpense());
             btnClear.setOnClickListener(v -> clearForm());
@@ -112,15 +118,66 @@ public class ExpressFragment extends Fragment {
         return view;
     }
 
+    // ✨ NEW: Setup date picker functionality
+    private void setupDatePicker() {
+        layoutDatePicker.setOnClickListener(v -> showDatePickerDialog());
+    }
+
+    // ✨ NEW: Show date picker dialog
+    private void showDatePickerDialog() {
+        int year = selectedCalendar.get(Calendar.YEAR);
+        int month = selectedCalendar.get(Calendar.MONTH);
+        int day = selectedCalendar.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                requireContext(),
+                (view, selectedYear, selectedMonth, selectedDay) -> {
+                    // Update selected calendar
+                    selectedCalendar.set(Calendar.YEAR, selectedYear);
+                    selectedCalendar.set(Calendar.MONTH, selectedMonth);
+                    selectedCalendar.set(Calendar.DAY_OF_MONTH, selectedDay);
+
+                    // Update display
+                    updateDateDisplay();
+
+                    Toast.makeText(getContext(),
+                            "📅 Date selected: " + formatDate(selectedCalendar.getTime()),
+                            Toast.LENGTH_SHORT).show();
+                },
+                year, month, day
+        );
+
+        // Optional: Set max date to today (can't select future dates)
+        datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+
+        datePickerDialog.show();
+    }
+
+    // ✨ MODIFIED: Update date display to show selected date
+    private void updateDateDisplay() {
+        String currentDate = formatDate(selectedCalendar.getTime());
+        tvDate.setText(currentDate);
+    }
+
+    // ✨ NEW: Format date helper
+    private String formatDate(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        return sdf.format(date);
+    }
+
+    // ✨ NEW: Get formatted date for database (yyyy-MM-dd HH:mm:ss)
+    private String getFormattedDateForDatabase() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        return sdf.format(selectedCalendar.getTime());
+    }
+
     private void setupRecyclerView() {
         expressList = new ArrayList<>();
         adapter = new ExpressAdapter(getContext(), expressList);
 
-        // ✨ NEW: Set listener để reload data khi có thay đổi
         adapter.setOnExpenseChangeListener(new ExpressAdapter.OnExpenseChangeListener() {
             @Override
             public void onExpenseChanged() {
-                // Reload expenses list
                 loadExpenses();
             }
         });
@@ -130,7 +187,6 @@ public class ExpressFragment extends Fragment {
 
         Log.d(TAG, "✓ RecyclerView setup with edit/delete functionality");
     }
-
 
     private void loadExpenses() {
         if (userId == 0) {
@@ -144,7 +200,6 @@ public class ExpressFragment extends Fragment {
             expressList.addAll(list);
             adapter.notifyDataSetChanged();
 
-            // Hiển thị empty state nếu không có dữ liệu
             if (expressList.isEmpty()) {
                 rvExpenses.setVisibility(View.GONE);
                 tvEmptyState.setVisibility(View.VISIBLE);
@@ -259,11 +314,7 @@ public class ExpressFragment extends Fragment {
         setCategoryIcon(imgCategory, selectedCategory);
     }
 
-    private void updateDateDisplay() {
-        String currentDate = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(new Date());
-        tvDate.setText("Date: " + currentDate);
-    }
-
+    // ✨ MODIFIED: Save expense with selected date
     private void saveExpense() {
         Log.d(TAG, ">>> saveExpense clicked");
 
@@ -295,13 +346,18 @@ public class ExpressFragment extends Fragment {
                 return;
             }
 
-            Express newExpense = new Express(expenseName, amount, selectedCategory, userId);
+            // ✨ MODIFIED: Create Express with selected date
+            String selectedDate = getFormattedDateForDatabase();
+            Express newExpense = new Express(expenseName, amount, selectedCategory, userId, selectedDate);
+
             long result = expressRepository.addExpress(newExpense);
 
             if (result > 0) {
-                Toast.makeText(getContext(), "✅ Expense saved successfully!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(),
+                        "✅ Expense saved successfully on " + formatDate(selectedCalendar.getTime()),
+                        Toast.LENGTH_SHORT).show();
                 clearForm();
-                loadExpenses(); // Reload list
+                loadExpenses();
             } else {
                 Toast.makeText(getContext(), "❌ Error: Failed to save expense", Toast.LENGTH_SHORT).show();
             }
@@ -314,11 +370,17 @@ public class ExpressFragment extends Fragment {
         }
     }
 
+    // ✨ MODIFIED: Clear form and reset date to today
     private void clearForm() {
         edtExpenseName.setText("");
         edtAmount.setText("");
         selectedCategory = "Food";
         tvSelectedCategory.setText("Category: Food");
+
+        // ✨ Reset date to today
+        selectedCalendar = Calendar.getInstance();
+        updateDateDisplay();
+
         updateCategoryIconDisplay();
         setupCategoryIcons();
         edtExpenseName.requestFocus();
@@ -327,7 +389,6 @@ public class ExpressFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Reload dữ liệu mỗi khi quay lại fragment
         loadExpenses();
     }
 }
