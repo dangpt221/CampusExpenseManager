@@ -29,6 +29,8 @@ public class ExpressRepository {
      * ✅ FIX: Thêm chi tiêu mới vào database
      * Cải thiện: Lưu categoryName với trim(), tránh khoảng trắng
      */
+    // Cập nhật method addExpress trong ExpressRepository.java
+
     public long addExpress(Express express) {
         if (express == null) {
             Log.e(TAG, "Express object is null");
@@ -42,20 +44,25 @@ public class ExpressRepository {
 
             values.put(SQLiteDbHelper.TITLE_EXPRESS, express.getTitle());
             values.put(SQLiteDbHelper.AMOUNT_EXPRESS, express.getAmount());
-            // ✅ FIX: TRIM category name khi lưu
             values.put(SQLiteDbHelper.CATEGORY_ID_EXPRESS, express.getCategoryName().trim());
             values.put(SQLiteDbHelper.USER_ID_EXPRESS, express.getUserId());
             values.put(SQLiteDbHelper.CURRENCY_EXPRESS, "VND");
 
-            String currentDateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                    .format(new Date());
-            values.put(SQLiteDbHelper.DATE_EXPRESS, currentDateTime);
+            // ✅ NEW: Use custom date if provided, otherwise use current datetime
+            String dateTime;
+            if (express.getDate() != null && !express.getDate().isEmpty()) {
+                dateTime = express.getDate(); // Use provided date
+            } else {
+                dateTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                        .format(new Date()); // Use current datetime
+            }
+            values.put(SQLiteDbHelper.DATE_EXPRESS, dateTime);
             values.put(SQLiteDbHelper.STATUS_EXPRESS, 1);
 
             long id = db.insert(SQLiteDbHelper.TABLE_EXPRESS, null, values);
             Log.d(TAG, "✓ Insert express success - ID: " + id + ", UserId: " + express.getUserId()
                     + ", Title: " + express.getTitle() + ", Amount: " + express.getAmount()
-                    + ", Category: " + express.getCategoryName());
+                    + ", Category: " + express.getCategoryName() + ", Date: " + dateTime);
             return id;
         } catch (Exception e) {
             Log.e(TAG, "✗ Error adding express: " + e.getMessage());
@@ -67,7 +74,6 @@ public class ExpressRepository {
             }
         }
     }
-
     /**
      * Lấy tất cả chi tiêu của user
      */
