@@ -24,6 +24,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import com.example.campusexpensesmanagermer.Utils.CurrencyUtils;
+
 public class ExpressAdapter extends RecyclerView.Adapter<ExpressAdapter.ExpressViewHolder> {
 
     private Context context;
@@ -67,7 +69,7 @@ public class ExpressAdapter extends RecyclerView.Adapter<ExpressAdapter.ExpressV
 
         // Display data
         holder.tvTitle.setText(express.getTitle());
-        holder.tvAmount.setText(String.format(Locale.getDefault(), "%.0f ₫", express.getAmount()));
+        holder.tvAmount.setText(CurrencyUtils.formatCurrency(context, express.getAmount()));
         holder.tvCategory.setText(express.getCategoryName());
 
         // Format date

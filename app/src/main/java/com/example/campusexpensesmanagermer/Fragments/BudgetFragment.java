@@ -26,6 +26,7 @@ import com.example.campusexpensesmanagermer.Adapters.BudgetAdapter;
 import com.example.campusexpensesmanagermer.Models.Budget;
 import com.example.campusexpensesmanagermer.Models.BudgetItem;
 import com.example.campusexpensesmanagermer.R;
+import com.example.campusexpensesmanagermer.Utils.CurrencyUtils;
 import com.example.campusexpensesmanagermer.Repositories.BudgetRepository;
 import com.example.campusexpensesmanagermer.Repositories.BudgetItemRepository;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -170,9 +171,9 @@ public class BudgetFragment extends Fragment implements BudgetAdapter.OnBudgetIt
             }
 
             // Hiển thị tổng ngân sách và đã chi sau khi đồng bộ
-            tvTotalBudget.setText(String.format(Locale.getDefault(), "%,.0f ₫", currentBudget.getMoney()));
-            tvTotalSpent.setText(String.format(Locale.getDefault(), "%,.0f ₫", currentBudget.getSpent()));
-            tvRemaining.setText(String.format(Locale.getDefault(), "%,.0f ₫", currentBudget.getRemaining()));
+            tvTotalBudget.setText(CurrencyUtils.formatCurrency(requireContext(), currentBudget.getMoney()));
+            tvTotalSpent.setText(CurrencyUtils.formatCurrency(requireContext(), currentBudget.getSpent()));
+            tvRemaining.setText(CurrencyUtils.formatCurrency(requireContext(), currentBudget.getRemaining()));
 
             // ✅ Thay đổi màu nếu vượt quá
             if (currentBudget.isExceeded()) {
@@ -213,9 +214,9 @@ public class BudgetFragment extends Fragment implements BudgetAdapter.OnBudgetIt
         tvEmptyState.setVisibility(View.VISIBLE);
 
         if (isTotalBudgetEmpty) {
-            tvTotalBudget.setText("0 ₫");
-            tvTotalSpent.setText("0 ₫");
-            tvRemaining.setText("0 ₫");
+            tvTotalBudget.setText(CurrencyUtils.formatCurrency(requireContext(), 0));
+            tvTotalSpent.setText(CurrencyUtils.formatCurrency(requireContext(), 0));
+            tvRemaining.setText(CurrencyUtils.formatCurrency(requireContext(), 0));
             budgetProgressBar.setProgress(0);
         }
     }

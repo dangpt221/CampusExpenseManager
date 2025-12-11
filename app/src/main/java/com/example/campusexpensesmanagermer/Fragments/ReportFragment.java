@@ -20,6 +20,7 @@ import com.example.campusexpensesmanagermer.Models.Express;
 import com.example.campusexpensesmanagermer.Models.ExpenseReport;
 import com.example.campusexpensesmanagermer.R;
 import com.example.campusexpensesmanagermer.Repositories.ExpressRepository;
+import com.example.campusexpensesmanagermer.Utils.CurrencyUtils;
 import com.google.android.material.chip.ChipGroup;
 
 import java.text.SimpleDateFormat;
@@ -163,7 +164,7 @@ public class ReportFragment extends Fragment {
             String thisMonthEnd = getCurrentDate();
 
             double thisMonthTotal = expressRepository.getTotalExpenseByPeriod(userId, thisMonthStart, thisMonthEnd);
-            tvThisMonthTotal.setText(String.format("%.0f ₫", thisMonthTotal));
+            tvThisMonthTotal.setText(CurrencyUtils.formatCurrency(requireContext(), thisMonthTotal));
 
             // Last month
             calendar.add(Calendar.MONTH, -1);
@@ -180,7 +181,7 @@ public class ReportFragment extends Fragment {
                     calendar.get(Calendar.DAY_OF_MONTH));
 
             double lastMonthTotal = expressRepository.getTotalExpenseByPeriod(userId, lastMonthStart, lastMonthEnd);
-            tvLastMonthTotal.setText(String.format("%.0f ₫", lastMonthTotal));
+            tvLastMonthTotal.setText(CurrencyUtils.formatCurrency(requireContext(), lastMonthTotal));
 
             Log.d(TAG, "Monthly comparison: This=" + thisMonthTotal + ", Last=" + lastMonthTotal);
         } catch (Exception e) {

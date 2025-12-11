@@ -31,6 +31,7 @@ import androidx.fragment.app.Fragment;
 import com.example.campusexpensesmanagermer.Activities.LoginActivity;
 import com.example.campusexpensesmanagermer.Data.SQLiteDbHelper;
 import com.example.campusexpensesmanagermer.R;
+import com.example.campusexpensesmanagermer.Utils.CurrencyUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -413,16 +414,16 @@ public class ProfileFragment extends Fragment {
 
         try {
             double yearlySpend = getTotalSpendThisYear();
-            tvYearlySpend.setText(String.format("%,.0f ₫", yearlySpend));
+            tvYearlySpend.setText(CurrencyUtils.formatCurrency(requireContext(), yearlySpend));
 
             double monthlySpend = getTotalSpendThisMonth();
-            tvMonthlySpend.setText(String.format("%,.0f ₫", monthlySpend));
+            tvMonthlySpend.setText(CurrencyUtils.formatCurrency(requireContext(), monthlySpend));
 
             int transactionCount = getTransactionCount();
             tvTransactionCount.setText(String.valueOf(transactionCount));
 
             double averageSpend = transactionCount > 0 ? yearlySpend / transactionCount : 0;
-            tvAverageSpend.setText(String.format("%,.0f ₫", averageSpend));
+            tvAverageSpend.setText(CurrencyUtils.formatCurrency(requireContext(), averageSpend));
 
             String topCategory = getTopCategory();
             tvTopCategory.setText(topCategory);
@@ -560,7 +561,7 @@ public class ProfileFragment extends Fragment {
             if (cursor.moveToFirst()) {
                 String title = cursor.getString(0);
                 double amount = cursor.getDouble(1);
-                return title + " - " + String.format("%,.0f ₫", amount);
+                return title + " - " + CurrencyUtils.formatCurrency(requireContext(), amount);
             }
         } catch (Exception e) {
             Log.e(TAG, "Error: " + e.getMessage());

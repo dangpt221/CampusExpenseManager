@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.campusexpensesmanagermer.Models.ExpenseReport;
 import com.example.campusexpensesmanagermer.R;
+import com.example.campusexpensesmanagermer.Utils.CurrencyUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,7 +38,7 @@ public class ExpenseReportAdapter extends RecyclerView.Adapter<ExpenseReportAdap
         ExpenseReport report = reportList.get(position);
 
         holder.tvCategoryName.setText(report.getCategoryName());
-        holder.tvAmount.setText(String.format("%.0f ₫", report.getTotalAmount()));
+        holder.tvAmount.setText(CurrencyUtils.formatCurrency(context, report.getTotalAmount()));
         holder.tvTransactionCount.setText(report.getTransactionCount() + " giao dịch");
         holder.tvPercentage.setText(String.format("%.1f%%", report.getPercentage()));
     }

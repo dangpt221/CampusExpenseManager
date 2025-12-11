@@ -5,8 +5,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,6 +20,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 
 import com.example.campusexpensesmanagermer.Activities.LoginActivity;
 import com.example.campusexpensesmanagermer.R;
+import com.example.campusexpensesmanagermer.Utils.LanguageUtils;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -32,7 +37,6 @@ public class SettingsActivity extends AppCompatActivity {
     private SwitchMaterial switchSpendingReminder;
     private SwitchMaterial switchLimitReminder;
     private TextView tvCurrency;
-    private TextView tvLanguage;
     private TextView tvSecurity;
     private TextView tvBackupRestore;
     private TextView tvLogout;
@@ -61,7 +65,6 @@ public class SettingsActivity extends AppCompatActivity {
         switchSpendingReminder = findViewById(R.id.switch_spending_reminder);
         switchLimitReminder = findViewById(R.id.switch_limit_reminder);
         tvCurrency = findViewById(R.id.tv_currency);
-        tvLanguage = findViewById(R.id.tv_language);
         tvSecurity = findViewById(R.id.tv_security);
         tvBackupRestore = findViewById(R.id.tv_backup_restore);
         tvLogout = findViewById(R.id.tv_logout);
@@ -72,6 +75,8 @@ public class SettingsActivity extends AppCompatActivity {
         // Load and setup Dark Mode
         if (switchDarkMode != null) {
             boolean isDarkMode = settingsPrefs.getBoolean("dark_mode", false);
+            // Set checked before listener to avoid triggering during initialization
+            switchDarkMode.setOnCheckedChangeListener(null);
             switchDarkMode.setChecked(isDarkMode);
             switchDarkMode.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
@@ -95,12 +100,7 @@ public class SettingsActivity extends AppCompatActivity {
             tvCurrency.setOnClickListener(v -> showCurrencyDialog());
         }
 
-        // Setup Language
-        if (tvLanguage != null) {
-            String language = settingsPrefs.getString("language", "Tiếng Việt");
-            tvLanguage.setText("Ngôn ngữ: " + language);
-            tvLanguage.setOnClickListener(v -> showLanguageDialog());
-        }
+        // Language selection removed per request
     }
 
     // --- 3. Xử lý Thông báo ---
@@ -135,12 +135,7 @@ public class SettingsActivity extends AppCompatActivity {
     // --- 4. Xử lý Bảo mật ---
     private void setupSecuritySection() {
         if (tvSecurity != null) {
-            tvSecurity.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Toast.makeText(SettingsActivity.this, "Tính năng đang phát triển", Toast.LENGTH_SHORT).show();
-                }
-            });
+            tvSecurity.setOnClickListener(v -> showPinDialog());
         }
 
         if (tvBackupRestore != null) {
@@ -195,35 +190,7 @@ public class SettingsActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void showLanguageDialog() {
-        String[] languages = {"Tiếng Việt", "English"};
-        String currentLanguage = settingsPrefs.getString("language", "Tiếng Việt");
-        int selectedIndex = 0;
-
-        for (int i = 0; i < languages.length; i++) {
-            if (languages[i].equals(currentLanguage)) {
-                selectedIndex = i;
-                break;
-            }
-        }
-
-        new AlertDialog.Builder(SettingsActivity.this)
-                .setTitle("Chọn ngôn ngữ")
-                .setSingleChoiceItems(languages, selectedIndex, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String selected = languages[which];
-                        settingsPrefs.edit().putString("language", selected).apply();
-                        if (tvLanguage != null) {
-                            tvLanguage.setText("Ngôn ngữ: " + selected);
-                        }
-                        Toast.makeText(SettingsActivity.this, "Đã đổi sang " + selected, Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
-                    }
-                })
-                .setNegativeButton("Hủy", null)
-                .show();
-    }
+    // Language selection removed per request
 
     private void showBackupRestoreDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
@@ -272,5 +239,478 @@ public class SettingsActivity extends AppCompatActivity {
         finish();
 
         Toast.makeText(SettingsActivity.this, "Đã đăng xuất thành công", Toast.LENGTH_SHORT).show();
+    }
+
+    private void showPinDialog() {
+        try {
+            String savedPin = settingsPrefs.getString("app_pin", "");
+            boolean hasPin = !savedPin.isEmpty();
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+            View dialogView = LayoutInflater.from(SettingsActivity.this).inflate(R.layout.dialog_pin, null);
+            builder.setView(dialogView);
+            builder.setCancelable(true);
+
+            AlertDialog dialog = builder.create();
+
+            TextView tvTitle = dialogView.findViewById(R.id.tv_pin_title);
+            TextView tvSubtitle = dialogView.findViewById(R.id.tv_pin_subtitle);
+            TextView tvError = dialogView.findViewById(R.id.tv_pin_error);
+            EditText edtPinHidden = dialogView.findViewById(R.id.edt_pin_hidden);
+            View dot1 = dialogView.findViewById(R.id.dot1);
+            View dot2 = dialogView.findViewById(R.id.dot2);
+            View dot3 = dialogView.findViewById(R.id.dot3);
+            View dot4 = dialogView.findViewById(R.id.dot4);
+
+            View[] dots = {dot1, dot2, dot3, dot4};
+
+            if (hasPin) {
+                tvTitle.setText("Nhập mã PIN");
+                tvSubtitle.setText("Nhập mã PIN để truy cập");
+            } else {
+                tvTitle.setText("Thiết lập mã PIN");
+                tvSubtitle.setText("Nhập 4 chữ số để bảo mật");
+            }
+
+            for (int i = 0; i <= 9; i++) {
+                int buttonId = getResources().getIdentifier("btn_pin_" + i, "id", getPackageName());
+                Button btn = dialogView.findViewById(buttonId);
+                if (btn != null) {
+                    final String digit = String.valueOf(i);
+                    btn.setOnClickListener(v -> {
+                        String currentPin = edtPinHidden.getText().toString();
+                        if (currentPin.length() < 4) {
+                            edtPinHidden.setText(currentPin + digit);
+                            updatePinDots(dots, edtPinHidden.getText().toString());
+                            tvError.setVisibility(View.GONE);
+
+                            if (edtPinHidden.getText().toString().length() == 4) {
+                                handlePinInput(edtPinHidden.getText().toString(), hasPin, savedPin, dialog, tvError, dots, edtPinHidden);
+                            }
+                        }
+                    });
+                }
+            }
+
+            Button btnClear = dialogView.findViewById(R.id.btn_pin_clear);
+            if (btnClear != null) {
+                btnClear.setOnClickListener(v -> {
+                    edtPinHidden.setText("");
+                    updatePinDots(dots, "");
+                    tvError.setVisibility(View.GONE);
+                });
+            }
+
+            Button btnBackspace = dialogView.findViewById(R.id.btn_pin_backspace);
+            if (btnBackspace != null) {
+                btnBackspace.setOnClickListener(v -> {
+                    String currentPin = edtPinHidden.getText().toString();
+                    if (currentPin.length() > 0) {
+                        edtPinHidden.setText(currentPin.substring(0, currentPin.length() - 1));
+                        updatePinDots(dots, edtPinHidden.getText().toString());
+                        tvError.setVisibility(View.GONE);
+                    }
+                });
+            }
+
+            builder.setNegativeButton("Hủy", null);
+            dialog.show();
+        } catch (Exception e) {
+            Log.e(TAG, "Error showing PIN dialog: " + e.getMessage());
+            e.printStackTrace();
+            Toast.makeText(SettingsActivity.this, "Lỗi khi mở PIN dialog", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void updatePinDots(View[] dots, String pin) {
+        for (int i = 0; i < dots.length; i++) {
+            if (i < pin.length()) {
+                dots[i].setBackgroundResource(R.drawable.pin_dot_filled);
+            } else {
+                dots[i].setBackgroundResource(R.drawable.pin_dot_empty);
+            }
+        }
+    }
+
+    private void handlePinInput(String pin, boolean hasPin, String savedPin, AlertDialog dialog, TextView tvError, View[] dots, EditText edtPinHidden) {
+        if (hasPin) {
+            if (pin.equals(savedPin)) {
+                showPinOptionsDialog();
+                dialog.dismiss();
+            } else {
+                tvError.setText("Mã PIN không đúng!");
+                tvError.setVisibility(View.VISIBLE);
+                edtPinHidden.setText("");
+                updatePinDots(dots, "");
+            }
+        } else {
+            dialog.dismiss();
+            showPinConfirmationDialog(pin);
+        }
+    }
+
+    private void showPinConfirmationDialog(String firstPin) {
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+            View dialogView = LayoutInflater.from(SettingsActivity.this).inflate(R.layout.dialog_pin, null);
+            builder.setView(dialogView);
+            builder.setCancelable(true);
+
+            AlertDialog dialog = builder.create();
+
+            TextView tvTitle = dialogView.findViewById(R.id.tv_pin_title);
+            TextView tvSubtitle = dialogView.findViewById(R.id.tv_pin_subtitle);
+            TextView tvError = dialogView.findViewById(R.id.tv_pin_error);
+            EditText edtPinHidden = dialogView.findViewById(R.id.edt_pin_hidden);
+            View dot1 = dialogView.findViewById(R.id.dot1);
+            View dot2 = dialogView.findViewById(R.id.dot2);
+            View dot3 = dialogView.findViewById(R.id.dot3);
+            View dot4 = dialogView.findViewById(R.id.dot4);
+
+            View[] dots = {dot1, dot2, dot3, dot4};
+
+            tvTitle.setText("Xác nhận mã PIN");
+            tvSubtitle.setText("Nhập lại mã PIN để xác nhận");
+
+            for (int i = 0; i <= 9; i++) {
+                int buttonId = getResources().getIdentifier("btn_pin_" + i, "id", getPackageName());
+                Button btn = dialogView.findViewById(buttonId);
+                if (btn != null) {
+                    final String digit = String.valueOf(i);
+                    btn.setOnClickListener(v -> {
+                        String currentPin = edtPinHidden.getText().toString();
+                        if (currentPin.length() < 4) {
+                            edtPinHidden.setText(currentPin + digit);
+                            updatePinDots(dots, edtPinHidden.getText().toString());
+                            tvError.setVisibility(View.GONE);
+
+                            if (edtPinHidden.getText().toString().length() == 4) {
+                                String confirmPin = edtPinHidden.getText().toString();
+                                if (confirmPin.equals(firstPin)) {
+                                    settingsPrefs.edit().putString("app_pin", confirmPin).apply();
+                                    settingsPrefs.edit().putBoolean("pin_enabled", true).apply();
+                                    dialog.dismiss();
+                                    Toast.makeText(SettingsActivity.this, "Đã thiết lập mã PIN thành công", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    tvError.setText("Mã PIN không khớp! Vui lòng thử lại.");
+                                    tvError.setVisibility(View.VISIBLE);
+                                    edtPinHidden.setText("");
+                                    updatePinDots(dots, "");
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            Button btnClear = dialogView.findViewById(R.id.btn_pin_clear);
+            if (btnClear != null) {
+                btnClear.setOnClickListener(v -> {
+                    edtPinHidden.setText("");
+                    updatePinDots(dots, "");
+                    tvError.setVisibility(View.GONE);
+                });
+            }
+
+            Button btnBackspace = dialogView.findViewById(R.id.btn_pin_backspace);
+            if (btnBackspace != null) {
+                btnBackspace.setOnClickListener(v -> {
+                    String currentPin = edtPinHidden.getText().toString();
+                    if (currentPin.length() > 0) {
+                        edtPinHidden.setText(currentPin.substring(0, currentPin.length() - 1));
+                        updatePinDots(dots, edtPinHidden.getText().toString());
+                        tvError.setVisibility(View.GONE);
+                    }
+                });
+            }
+
+            builder.setNegativeButton("Hủy", null);
+            dialog.show();
+        } catch (Exception e) {
+            Log.e(TAG, "Error showing PIN confirmation dialog: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void showPinOptionsDialog() {
+        try {
+            String[] options = {"Thay đổi mã PIN", "Tắt mã PIN"};
+            AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+            builder.setTitle("Tùy chọn mã PIN");
+            builder.setItems(options, (dialog, which) -> {
+                if (which == 0) {
+                    dialog.dismiss();
+                    showChangePinDialog();
+                } else {
+                    showDisablePinDialog();
+                }
+            });
+            builder.setNegativeButton("Hủy", null);
+            builder.show();
+        } catch (Exception e) {
+            Log.e(TAG, "Error showing PIN options dialog: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void showChangePinDialog() {
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+            View dialogView = LayoutInflater.from(SettingsActivity.this).inflate(R.layout.dialog_pin, null);
+            builder.setView(dialogView);
+            builder.setCancelable(true);
+
+            AlertDialog dialog = builder.create();
+
+            TextView tvTitle = dialogView.findViewById(R.id.tv_pin_title);
+            TextView tvSubtitle = dialogView.findViewById(R.id.tv_pin_subtitle);
+            TextView tvError = dialogView.findViewById(R.id.tv_pin_error);
+            EditText edtPinHidden = dialogView.findViewById(R.id.edt_pin_hidden);
+            View dot1 = dialogView.findViewById(R.id.dot1);
+            View dot2 = dialogView.findViewById(R.id.dot2);
+            View dot3 = dialogView.findViewById(R.id.dot3);
+            View dot4 = dialogView.findViewById(R.id.dot4);
+
+            View[] dots = {dot1, dot2, dot3, dot4};
+
+            String savedPin = settingsPrefs.getString("app_pin", "");
+
+            tvTitle.setText("Nhập mã PIN cũ");
+            tvSubtitle.setText("Nhập mã PIN hiện tại để tiếp tục");
+
+            for (int i = 0; i <= 9; i++) {
+                int buttonId = getResources().getIdentifier("btn_pin_" + i, "id", getPackageName());
+                Button btn = dialogView.findViewById(buttonId);
+                if (btn != null) {
+                    final String digit = String.valueOf(i);
+                    btn.setOnClickListener(v -> {
+                        String currentPin = edtPinHidden.getText().toString();
+                        if (currentPin.length() < 4) {
+                            edtPinHidden.setText(currentPin + digit);
+                            updatePinDots(dots, edtPinHidden.getText().toString());
+                            tvError.setVisibility(View.GONE);
+
+                            if (edtPinHidden.getText().toString().length() == 4) {
+                                String enteredPin = edtPinHidden.getText().toString();
+                                if (enteredPin.equals(savedPin)) {
+                                    dialog.dismiss();
+                                    showSetNewPinDialog();
+                                } else {
+                                    tvError.setText("Mã PIN không đúng!");
+                                    tvError.setVisibility(View.VISIBLE);
+                                    edtPinHidden.setText("");
+                                    updatePinDots(dots, "");
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            Button btnClear = dialogView.findViewById(R.id.btn_pin_clear);
+            if (btnClear != null) {
+                btnClear.setOnClickListener(v -> {
+                    edtPinHidden.setText("");
+                    updatePinDots(dots, "");
+                    tvError.setVisibility(View.GONE);
+                });
+            }
+
+            Button btnBackspace = dialogView.findViewById(R.id.btn_pin_backspace);
+            if (btnBackspace != null) {
+                btnBackspace.setOnClickListener(v -> {
+                    String currentPin = edtPinHidden.getText().toString();
+                    if (currentPin.length() > 0) {
+                        edtPinHidden.setText(currentPin.substring(0, currentPin.length() - 1));
+                        updatePinDots(dots, edtPinHidden.getText().toString());
+                        tvError.setVisibility(View.GONE);
+                    }
+                });
+            }
+
+            builder.setNegativeButton("Hủy", null);
+            dialog.show();
+        } catch (Exception e) {
+            Log.e(TAG, "Error showing change PIN dialog: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void showSetNewPinDialog() {
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+            View dialogView = LayoutInflater.from(SettingsActivity.this).inflate(R.layout.dialog_pin, null);
+            builder.setView(dialogView);
+            builder.setCancelable(true);
+
+            AlertDialog dialog = builder.create();
+
+            TextView tvTitle = dialogView.findViewById(R.id.tv_pin_title);
+            TextView tvSubtitle = dialogView.findViewById(R.id.tv_pin_subtitle);
+            TextView tvError = dialogView.findViewById(R.id.tv_pin_error);
+            EditText edtPinHidden = dialogView.findViewById(R.id.edt_pin_hidden);
+            View dot1 = dialogView.findViewById(R.id.dot1);
+            View dot2 = dialogView.findViewById(R.id.dot2);
+            View dot3 = dialogView.findViewById(R.id.dot3);
+            View dot4 = dialogView.findViewById(R.id.dot4);
+
+            View[] dots = {dot1, dot2, dot3, dot4};
+
+            tvTitle.setText("Mã PIN mới");
+            tvSubtitle.setText("Nhập mã PIN mới (4 chữ số)");
+
+            final String[] firstPin = {""};
+
+            for (int i = 0; i <= 9; i++) {
+                int buttonId = getResources().getIdentifier("btn_pin_" + i, "id", getPackageName());
+                Button btn = dialogView.findViewById(buttonId);
+                if (btn != null) {
+                    final String digit = String.valueOf(i);
+                    btn.setOnClickListener(v -> {
+                        String currentPin = edtPinHidden.getText().toString();
+                        if (currentPin.length() < 4) {
+                            edtPinHidden.setText(currentPin + digit);
+                            updatePinDots(dots, edtPinHidden.getText().toString());
+                            tvError.setVisibility(View.GONE);
+
+                            if (edtPinHidden.getText().toString().length() == 4) {
+                                if (firstPin[0].isEmpty()) {
+                                    firstPin[0] = edtPinHidden.getText().toString();
+                                    dialog.dismiss();
+                                    showConfirmNewPinDialog(firstPin[0]);
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            Button btnClear = dialogView.findViewById(R.id.btn_pin_clear);
+            if (btnClear != null) {
+                btnClear.setOnClickListener(v -> {
+                    edtPinHidden.setText("");
+                    updatePinDots(dots, "");
+                    tvError.setVisibility(View.GONE);
+                });
+            }
+
+            Button btnBackspace = dialogView.findViewById(R.id.btn_pin_backspace);
+            if (btnBackspace != null) {
+                btnBackspace.setOnClickListener(v -> {
+                    String currentPin = edtPinHidden.getText().toString();
+                    if (currentPin.length() > 0) {
+                        edtPinHidden.setText(currentPin.substring(0, currentPin.length() - 1));
+                        updatePinDots(dots, edtPinHidden.getText().toString());
+                        tvError.setVisibility(View.GONE);
+                    }
+                });
+            }
+
+            builder.setNegativeButton("Hủy", null);
+            dialog.show();
+        } catch (Exception e) {
+            Log.e(TAG, "Error showing set new PIN dialog: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void showConfirmNewPinDialog(String firstPin) {
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+            View dialogView = LayoutInflater.from(SettingsActivity.this).inflate(R.layout.dialog_pin, null);
+            builder.setView(dialogView);
+            builder.setCancelable(true);
+
+            AlertDialog dialog = builder.create();
+
+            TextView tvTitle = dialogView.findViewById(R.id.tv_pin_title);
+            TextView tvSubtitle = dialogView.findViewById(R.id.tv_pin_subtitle);
+            TextView tvError = dialogView.findViewById(R.id.tv_pin_error);
+            EditText edtPinHidden = dialogView.findViewById(R.id.edt_pin_hidden);
+            View dot1 = dialogView.findViewById(R.id.dot1);
+            View dot2 = dialogView.findViewById(R.id.dot2);
+            View dot3 = dialogView.findViewById(R.id.dot3);
+            View dot4 = dialogView.findViewById(R.id.dot4);
+
+            View[] dots = {dot1, dot2, dot3, dot4};
+
+            tvTitle.setText("Xác nhận mã PIN mới");
+            tvSubtitle.setText("Nhập lại mã PIN mới để xác nhận");
+
+            for (int i = 0; i <= 9; i++) {
+                int buttonId = getResources().getIdentifier("btn_pin_" + i, "id", getPackageName());
+                Button btn = dialogView.findViewById(buttonId);
+                if (btn != null) {
+                    final String digit = String.valueOf(i);
+                    btn.setOnClickListener(v -> {
+                        String currentPin = edtPinHidden.getText().toString();
+                        if (currentPin.length() < 4) {
+                            edtPinHidden.setText(currentPin + digit);
+                            updatePinDots(dots, edtPinHidden.getText().toString());
+                            tvError.setVisibility(View.GONE);
+
+                            if (edtPinHidden.getText().toString().length() == 4) {
+                                String confirmPin = edtPinHidden.getText().toString();
+                                if (confirmPin.equals(firstPin)) {
+                                    settingsPrefs.edit().putString("app_pin", confirmPin).apply();
+                                    dialog.dismiss();
+                                    Toast.makeText(SettingsActivity.this, "Đã thay đổi mã PIN thành công", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    tvError.setText("Mã PIN không khớp! Vui lòng thử lại.");
+                                    tvError.setVisibility(View.VISIBLE);
+                                    edtPinHidden.setText("");
+                                    updatePinDots(dots, "");
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            Button btnClear = dialogView.findViewById(R.id.btn_pin_clear);
+            if (btnClear != null) {
+                btnClear.setOnClickListener(v -> {
+                    edtPinHidden.setText("");
+                    updatePinDots(dots, "");
+                    tvError.setVisibility(View.GONE);
+                });
+            }
+
+            Button btnBackspace = dialogView.findViewById(R.id.btn_pin_backspace);
+            if (btnBackspace != null) {
+                btnBackspace.setOnClickListener(v -> {
+                    String currentPin = edtPinHidden.getText().toString();
+                    if (currentPin.length() > 0) {
+                        edtPinHidden.setText(currentPin.substring(0, currentPin.length() - 1));
+                        updatePinDots(dots, edtPinHidden.getText().toString());
+                        tvError.setVisibility(View.GONE);
+                    }
+                });
+            }
+
+            builder.setNegativeButton("Hủy", null);
+            dialog.show();
+        } catch (Exception e) {
+            Log.e(TAG, "Error showing confirm new PIN dialog: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void showDisablePinDialog() {
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+            builder.setTitle("Tắt mã PIN");
+            builder.setMessage("Bạn có chắc chắn muốn tắt mã PIN?");
+            builder.setPositiveButton("Đồng ý", (dialog, which) -> {
+                settingsPrefs.edit().remove("app_pin").apply();
+                settingsPrefs.edit().putBoolean("pin_enabled", false).apply();
+                Toast.makeText(SettingsActivity.this, "Đã tắt mã PIN", Toast.LENGTH_SHORT).show();
+            });
+            builder.setNegativeButton("Hủy", null);
+            builder.show();
+        } catch (Exception e) {
+            Log.e(TAG, "Error showing disable PIN dialog: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

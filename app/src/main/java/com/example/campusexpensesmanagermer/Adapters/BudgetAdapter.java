@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.campusexpensesmanagermer.Models.BudgetItem;
 import com.example.campusexpensesmanagermer.R;
+import com.example.campusexpensesmanagermer.Utils.CurrencyUtils;
 
 import java.util.List;
 import java.util.Locale;
@@ -52,14 +53,14 @@ public class BudgetAdapter extends RecyclerView.Adapter<BudgetAdapter.BudgetView
         holder.tvCategory.setText(item.getCategoryName());
 
         // Hiển thị số tiền đã cấp
-        holder.tvAllocated.setText(String.format(Locale.getDefault(), "%.0f ₫", item.getAllocatedAmount()));
+        holder.tvAllocated.setText(CurrencyUtils.formatCurrency(context, item.getAllocatedAmount()));
 
         // Hiển thị số tiền đã chi
-        holder.tvSpent.setText(String.format(Locale.getDefault(), "%.0f ₫", item.getSpentAmount()));
+        holder.tvSpent.setText(CurrencyUtils.formatCurrency(context, item.getSpentAmount()));
 
         // Hiển thị số tiền còn lại
         double remaining = item.getRemaining();
-        holder.tvRemaining.setText(String.format(Locale.getDefault(), "%.0f ₫", remaining));
+        holder.tvRemaining.setText(CurrencyUtils.formatCurrency(context, remaining));
 
         // Đổi màu nếu vượt quá
         if (item.isExceeded()) {

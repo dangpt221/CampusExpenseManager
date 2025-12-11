@@ -47,6 +47,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import com.example.campusexpensesmanagermer.Utils.CurrencyUtils;
+
 public class HomeFragment extends Fragment {
 
     private static final String TAG = "HomeFragment";
@@ -164,13 +166,13 @@ public class HomeFragment extends Fragment {
 
             // Update UI
             if (tvTotalBudget != null) {
-                tvTotalBudget.setText(formatCurrency(totalBudget));
+                tvTotalBudget.setText(CurrencyUtils.formatCurrency(requireContext(), totalBudget));
             }
             if (tvSpent != null) {
-                tvSpent.setText(formatCurrency(spent));
+                tvSpent.setText(CurrencyUtils.formatCurrency(requireContext(), spent));
             }
             if (tvBalance != null) {
-                tvBalance.setText(formatCurrency(balance));
+                tvBalance.setText(CurrencyUtils.formatCurrency(requireContext(), balance));
 
                 // Change balance color based on value
                 if (balance < 0) {
@@ -245,10 +247,6 @@ public class HomeFragment extends Fragment {
                 startActivity(intent);
             });
         }
-    }
-
-    private String formatCurrency(double amount) {
-        return String.format(Locale.getDefault(), "%.0f ₫", amount);
     }
 
     private void setupCharts() {
