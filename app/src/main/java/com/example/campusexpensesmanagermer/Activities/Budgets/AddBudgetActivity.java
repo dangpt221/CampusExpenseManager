@@ -132,8 +132,6 @@ public class AddBudgetActivity extends AppCompatActivity {
 
             if (budgetId > 0) {
                 // --- NEW: compute allocations using integer minor units (cents) to avoid rounding issues ---
-                // Use 100 as scale to support two decimal places for currencies with cents. For VND (no cents)
-                // this will still work as amounts will be whole numbers.
                 long totalCents = Math.round(amount * 100.0);
                 int n = categories.length;
 
@@ -141,12 +139,21 @@ public class AddBudgetActivity extends AppCompatActivity {
                     long base = totalCents / n;
                     int rem = (int) (totalCents % n); // remainder to distribute
 
+                    java.util.List<BudgetItem> itemsToInsert = new java.util.ArrayList<>();
+
                     for (int i = 0; i < n; i++) {
                         long amountCents = base + (i < rem ? 1 : 0);
                         double amountPerCategory = amountCents / 100.0;
                         BudgetItem item = new BudgetItem((int) budgetId, categories[i], amountPerCategory);
-                        budgetItemRepository.addBudgetItem(item);
+                        itemsToInsert.add(item);
                     }
+
+                    boolean inserted = budgetItemRepository.addBudgetItemsInTransaction(itemsToInsert);
+                    if (!inserted) {
+                        Log.e(TAG, "✗ Some budget items may have failed to insert in transaction");
+                    }
+                } else {
+                    Log.w(TAG, "No categories available to allocate budget");
                 }
 
                 // --- END new allocation logic ---

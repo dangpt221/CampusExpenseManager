@@ -187,6 +187,9 @@ public class BudgetFragment extends Fragment implements BudgetAdapter.OnBudgetIt
             // ✅ Progress bar cập nhật theo tổng mới
             budgetProgressBar.setProgress(currentBudget.getProgressPercentage());
 
+            // Allow editing main budget total by tapping the total text
+            tvTotalBudget.setOnClickListener(v -> showEditBudgetTotalDialog());
+
 
             if (items.isEmpty()) {
                 rvBudgetItems.setVisibility(View.GONE);
@@ -303,6 +306,44 @@ public class BudgetFragment extends Fragment implements BudgetAdapter.OnBudgetIt
                 } catch (NumberFormatException e) {
                     Toast.makeText(getContext(), "❌ Invalid amount", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
+    }
+
+    // Show dialog to edit the main budget total and re-split items
+    private void showEditBudgetTotalDialog() {
+        if (currentBudget == null || currentBudget.getId() == 0) return;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        builder.setTitle("Edit total budget");
+
+        final EditText input = new EditText(getContext());
+        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        input.setText(String.valueOf(currentBudget.getMoney()));
+        input.setHint("Enter total amount");
+
+        builder.setView(input);
+        builder.setPositiveButton("Save", (dialog, which) -> {
+            String val = input.getText().toString().trim();
+            if (val.isEmpty()) return;
+            try {
+                double newAmount = Double.parseDouble(val);
+                if (newAmount <= 0) {
+                    Toast.makeText(getContext(), "Invalid amount", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                boolean ok = budgetRepository.updateBudgetAndSplit(currentBudget.getId(), newAmount);
+                if (ok) {
+                    Toast.makeText(getContext(), "✅ Budget updated and split", Toast.LENGTH_SHORT).show();
+                    loadBudgetData();
+                } else {
+                    Toast.makeText(getContext(), "❌ Update failed", Toast.LENGTH_SHORT).show();
+                }
+            } catch (NumberFormatException e) {
+                Toast.makeText(getContext(), "❌ Invalid number", Toast.LENGTH_SHORT).show();
             }
         });
         builder.setNegativeButton("Cancel", null);

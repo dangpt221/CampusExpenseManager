@@ -250,6 +250,50 @@ public class BudgetItemRepository {
     }
 
     /**
+     * Thêm nhiều budget items trong cùng một transaction
+     */
+    public boolean addBudgetItemsInTransaction(List<BudgetItem> items) {
+        if (items == null || items.isEmpty()) {
+            Log.e(TAG, "No items to insert");
+            return false;
+        }
+
+        SQLiteDatabase db = null;
+        try {
+            db = dbHelper.getWritableDatabase();
+            db.beginTransaction();
+
+            for (BudgetItem item : items) {
+                ContentValues values = new ContentValues();
+                values.put(SQLiteDbHelper.BUDGET_ID_ITEM, item.getBudgetId());
+                values.put(SQLiteDbHelper.CATEGORY_ID_ITEM, item.getCategoryName());
+                values.put(SQLiteDbHelper.ALLOCATED_AMOUNT_ITEM, item.getAllocatedAmount());
+
+                long id = db.insert(SQLiteDbHelper.TABLE_BUDGET_ITEMS, null, values);
+                if (id <= 0) {
+                    Log.e(TAG, "Failed to insert budget item: " + item.getCategoryName());
+                    // continue to attempt others but mark as failure
+                } else {
+                    Log.d(TAG, "✓ Inserted budget item in tx - ID: " + id + ", Category: " + item.getCategoryName());
+                }
+            }
+
+            db.setTransactionSuccessful();
+            return true;
+        } catch (Exception e) {
+            Log.e(TAG, "✗ Error inserting budget items in transaction: " + e.getMessage(), e);
+            return false;
+        } finally {
+            if (db != null) {
+                try {
+                    db.endTransaction();
+                } catch (Exception ignored) {}
+                db.close();
+            }
+        }
+    }
+
+    /**
      * Helper: Convert cursor to BudgetItem
      */
     private BudgetItem cursorToBudgetItem(Cursor cursor) {

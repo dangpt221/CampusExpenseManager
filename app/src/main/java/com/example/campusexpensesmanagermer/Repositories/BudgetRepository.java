@@ -214,6 +214,89 @@ public class BudgetRepository {
     }
 
     /**
+     * Cập nhật ngân sách và chia đều số tiền cho các mục con của budget
+     */
+    public boolean updateBudgetAndSplit(int budgetId, double newAmount) {
+        if (budgetId <= 0) {
+            Log.e(TAG, "Invalid budgetId for updateBudgetAndSplit");
+            return false;
+        }
+
+        SQLiteDatabase db = null;
+        Cursor cursor = null;
+        try {
+            db = dbHelper.getWritableDatabase();
+            db.beginTransaction();
+
+            // 1) Cập nhật bản ghi budgets
+            ContentValues values = new ContentValues();
+            values.put(SQLiteDbHelper.TARGET_AMOUNT_BUDGET, newAmount);
+            int updated = db.update(SQLiteDbHelper.TABLE_BUDGETS, values, SQLiteDbHelper.ID_BUDGET + " = ?",
+                    new String[]{String.valueOf(budgetId)});
+
+            if (updated <= 0) {
+                Log.e(TAG, "✗ Update budget failed for id: " + budgetId);
+                db.endTransaction();
+                return false;
+            }
+
+            // 2) Lấy danh sách budget items của budget này theo id (để phân phối phần dư một cách xác định)
+            String q = "SELECT " + SQLiteDbHelper.ID_BUDGET_ITEM + " FROM " + SQLiteDbHelper.TABLE_BUDGET_ITEMS +
+                    " WHERE " + SQLiteDbHelper.BUDGET_ID_ITEM + " = ? ORDER BY " + SQLiteDbHelper.ID_BUDGET_ITEM + " ASC";
+            cursor = db.rawQuery(q, new String[]{String.valueOf(budgetId)});
+
+            List<Integer> itemIds = new java.util.ArrayList<>();
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    itemIds.add(cursor.getInt(0));
+                } while (cursor.moveToNext());
+            }
+
+            int n = itemIds.size();
+            if (n > 0) {
+                // Dùng đơn vị cents để tránh lỗi làm tròn
+                long totalCents = Math.round(newAmount * 100.0);
+                long base = totalCents / n;
+                int rem = (int) (totalCents % n);
+
+                for (int i = 0; i < n; i++) {
+                    long amountCents = base + (i < rem ? 1 : 0);
+                    double allocated = amountCents / 100.0;
+
+                    ContentValues v2 = new ContentValues();
+                    v2.put(SQLiteDbHelper.ALLOCATED_AMOUNT_ITEM, allocated);
+
+                    int r = db.update(SQLiteDbHelper.TABLE_BUDGET_ITEMS, v2,
+                            SQLiteDbHelper.ID_BUDGET_ITEM + " = ?", new String[]{String.valueOf(itemIds.get(i))});
+
+                    if (r <= 0) {
+                        Log.e(TAG, "✗ Failed to update budget item id: " + itemIds.get(i));
+                        // continue trying to update others but mark failure
+                    } else {
+                        Log.d(TAG, "✓ Updated budget item id=" + itemIds.get(i) + " allocated=" + allocated);
+                    }
+                }
+            } else {
+                Log.d(TAG, "No budget items found for budgetId=" + budgetId + ", nothing to split.");
+            }
+
+            db.setTransactionSuccessful();
+            return true;
+        } catch (Exception e) {
+            Log.e(TAG, "✗ Error in updateBudgetAndSplit: " + e.getMessage(), e);
+            return false;
+        } finally {
+            if (cursor != null) cursor.close();
+            if (db != null) {
+                try {
+                    db.endTransaction();
+                } catch (Exception ignored) {}
+                db.close();
+            }
+        }
+    }
+
+    /**
      * Xóa ngân sách
      */
     public boolean deleteBudget(int budgetId) {
