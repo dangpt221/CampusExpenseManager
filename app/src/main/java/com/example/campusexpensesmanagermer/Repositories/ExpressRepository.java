@@ -199,6 +199,9 @@ public class ExpressRepository {
     /**
      * Cập nhật chi tiêu
      */
+    /**
+     * ✅ UPDATED: Cập nhật chi tiêu (bao gồm cả ngày)
+     */
     public boolean updateExpress(Express express) {
         if (express == null || express.getId() == 0) {
             Log.e(TAG, "Invalid express object for update");
@@ -213,6 +216,11 @@ public class ExpressRepository {
             values.put(SQLiteDbHelper.AMOUNT_EXPRESS, express.getAmount());
             values.put(SQLiteDbHelper.CATEGORY_ID_EXPRESS, express.getCategoryName().trim());
 
+            // ✨ NEW: Update date if provided
+            if (express.getDate() != null && !express.getDate().isEmpty()) {
+                values.put(SQLiteDbHelper.DATE_EXPRESS, express.getDate());
+            }
+
             int result = db.update(
                     SQLiteDbHelper.TABLE_EXPRESS,
                     values,
@@ -220,7 +228,7 @@ public class ExpressRepository {
                     new String[]{String.valueOf(express.getId())}
             );
             boolean success = result > 0;
-            Log.d(TAG, success ? "✓ Update express success" : "✗ Update express failed");
+            Log.d(TAG, success ? "✓ Update express success (with date)" : "✗ Update express failed");
             return success;
         } catch (Exception e) {
             Log.e(TAG, "✗ Error updating express: " + e.getMessage());
@@ -232,7 +240,6 @@ public class ExpressRepository {
             }
         }
     }
-
     // ==================== PHẦN BÁO CÁO ====================
 
     /**

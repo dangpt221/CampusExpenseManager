@@ -1,6 +1,7 @@
 package com.example.campusexpensesmanagermer.Adapters;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,7 +21,9 @@ import com.example.campusexpensesmanagermer.Models.Express;
 import com.example.campusexpensesmanagermer.R;
 import com.example.campusexpensesmanagermer.Repositories.ExpressRepository;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -32,10 +36,10 @@ public class ExpressAdapter extends RecyclerView.Adapter<ExpressAdapter.ExpressV
     private List<Express> expressList;
     private ExpressRepository expressRepository;
 
-    // ✨ NEW: Listener for data changes
+    // Listener for data changes
     private OnExpenseChangeListener listener;
 
-    // ✨ NEW: Categories array
+    // Categories array
     private final String[] categories = {
             "Food", "Transport", "Shopping", "Entertainment",
             "Health", "Education", "Housing", "Utilities", "Other"
@@ -47,7 +51,7 @@ public class ExpressAdapter extends RecyclerView.Adapter<ExpressAdapter.ExpressV
         this.expressRepository = new ExpressRepository(context);
     }
 
-    // ✨ NEW: Listener interface
+    // Listener interface
     public interface OnExpenseChangeListener {
         void onExpenseChanged();
     }
@@ -86,10 +90,10 @@ public class ExpressAdapter extends RecyclerView.Adapter<ExpressAdapter.ExpressV
             holder.tvDate.setText("N/A");
         }
 
-        // ✨ NEW: Edit button click
+        // Edit button click
         holder.btnEdit.setOnClickListener(v -> showEditDialog(express, position));
 
-        // ✨ NEW: Delete button click
+        // Delete button click
         holder.btnDelete.setOnClickListener(v -> showDeleteDialog(express, position));
     }
 
@@ -98,7 +102,7 @@ public class ExpressAdapter extends RecyclerView.Adapter<ExpressAdapter.ExpressV
         return expressList != null ? expressList.size() : 0;
     }
 
-    // ✨ NEW: Show edit dialog
+    // ✨ UPDATED: Show edit dialog with date picker
     private void showEditDialog(Express express, int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_edit_expense, null);
@@ -108,6 +112,8 @@ public class ExpressAdapter extends RecyclerView.Adapter<ExpressAdapter.ExpressV
         EditText edtTitle = dialogView.findViewById(R.id.edt_edit_title);
         EditText edtAmount = dialogView.findViewById(R.id.edt_edit_amount);
         Spinner spinnerCategory = dialogView.findViewById(R.id.spinner_edit_category);
+        LinearLayout layoutDatePicker = dialogView.findViewById(R.id.layout_edit_date_picker);
+        TextView tvDate = dialogView.findViewById(R.id.tv_edit_date);
 
         // Setup spinner
         ArrayAdapter<String> adapter = new ArrayAdapter<>(context,
@@ -127,8 +133,46 @@ public class ExpressAdapter extends RecyclerView.Adapter<ExpressAdapter.ExpressV
             }
         }
 
+        // ✨ NEW: Parse and display current date
+        final Calendar selectedCalendar = Calendar.getInstance();
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            Date currentDate = sdf.parse(express.getDate());
+            if (currentDate != null) {
+                selectedCalendar.setTime(currentDate);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        // Display formatted date
+        SimpleDateFormat displayFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+        tvDate.setText(displayFormat.format(selectedCalendar.getTime()));
+
+        // ✨ NEW: Date picker click listener
+        layoutDatePicker.setOnClickListener(v -> {
+            DatePickerDialog datePickerDialog = new DatePickerDialog(
+                    context,
+                    (view, year, month, dayOfMonth) -> {
+                        selectedCalendar.set(Calendar.YEAR, year);
+                        selectedCalendar.set(Calendar.MONTH, month);
+                        selectedCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+                        // Update display
+                        tvDate.setText(displayFormat.format(selectedCalendar.getTime()));
+                    },
+                    selectedCalendar.get(Calendar.YEAR),
+                    selectedCalendar.get(Calendar.MONTH),
+                    selectedCalendar.get(Calendar.DAY_OF_MONTH)
+            );
+
+            // Optional: Set max date to today
+            datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+            datePickerDialog.show();
+        });
+
         builder.setTitle("✏️ Edit Expense");
-        builder.setPositiveButton("Lưu", (dialog, which) -> {
+        builder.setPositiveButton("Save", (dialog, which) -> {
             String newTitle = edtTitle.getText().toString().trim();
             String newAmountStr = edtAmount.getText().toString().trim();
             String newCategory = spinnerCategory.getSelectedItem().toString();
@@ -151,10 +195,15 @@ public class ExpressAdapter extends RecyclerView.Adapter<ExpressAdapter.ExpressV
                     return;
                 }
 
+                // ✨ NEW: Format selected date for database
+                SimpleDateFormat dbFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                String newDate = dbFormat.format(selectedCalendar.getTime());
+
                 // Update express object
                 express.setTitle(newTitle);
                 express.setAmount(newAmount);
                 express.setCategoryName(newCategory);
+                express.setDate(newDate); // ✨ NEW: Update date
 
                 // Update in database
                 boolean success = expressRepository.updateExpress(express);
@@ -181,7 +230,7 @@ public class ExpressAdapter extends RecyclerView.Adapter<ExpressAdapter.ExpressV
         builder.show();
     }
 
-    // ✨ NEW: Show delete confirmation dialog
+    // Show delete confirmation dialog
     private void showDeleteDialog(Express express, int position) {
         new AlertDialog.Builder(context)
                 .setTitle("🗑️ Confirm Delete")
@@ -243,7 +292,7 @@ public class ExpressAdapter extends RecyclerView.Adapter<ExpressAdapter.ExpressV
      */
     public static class ExpressViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitle, tvAmount, tvCategory, tvDate;
-        Button btnEdit, btnDelete; // ✨ NEW
+        Button btnEdit, btnDelete;
 
         public ExpressViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -251,8 +300,8 @@ public class ExpressAdapter extends RecyclerView.Adapter<ExpressAdapter.ExpressV
             tvAmount = itemView.findViewById(R.id.tvAmount);
             tvCategory = itemView.findViewById(R.id.tvCategory);
             tvDate = itemView.findViewById(R.id.tvDate);
-            btnEdit = itemView.findViewById(R.id.btnEdit);     // ✨ NEW
-            btnDelete = itemView.findViewById(R.id.btnDelete); // ✨ NEW
+            btnEdit = itemView.findViewById(R.id.btnEdit);
+            btnDelete = itemView.findViewById(R.id.btnDelete);
         }
     }
 }

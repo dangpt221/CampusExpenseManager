@@ -68,4 +68,50 @@
         android:background="@drawable/edit_text_background"
         android:layout_marginBottom="16dp"/>
 
+    <!-- ✨ NEW: Date Selection -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Date"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="#333333"
+        android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:id="@+id/layout_edit_date_picker"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/edit_text_background"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="📅 "
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/tv_edit_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="15/01/2025"
+            android:textSize="16sp"
+            android:textColor="#333333"
+            android:layout_marginStart="8dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="▼"
+            android:textSize="12sp"
+            android:textColor="#999999"/>
+    </LinearLayout>
+
 </LinearLayout>
