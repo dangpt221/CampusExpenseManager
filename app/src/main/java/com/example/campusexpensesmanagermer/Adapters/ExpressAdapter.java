@@ -123,7 +123,8 @@ public class ExpressAdapter extends RecyclerView.Adapter<ExpressAdapter.ExpressV
 
         // Fill current data
         edtTitle.setText(express.getTitle());
-        edtAmount.setText(String.valueOf((int) express.getAmount()));
+        // ✅ FIX: Display full amount without casting to int
+        edtAmount.setText(String.format(Locale.getDefault(), "%.0f", express.getAmount()));
 
         // Set current category
         for (int i = 0; i < categories.length; i++) {
