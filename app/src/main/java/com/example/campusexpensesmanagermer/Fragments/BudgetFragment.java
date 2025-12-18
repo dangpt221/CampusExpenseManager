@@ -286,8 +286,13 @@ public class BudgetFragment extends Fragment implements BudgetAdapter.OnBudgetIt
         builder.setTitle("Edit budget for " + item.getCategoryName());
 
         final EditText input = new EditText(getContext());
-        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
-        input.setText(String.valueOf((int) item.getAllocatedAmount()));
+        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER |
+                android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
+
+        //Hiển thị số tiền thật với 2 chữ số thập phân
+        String currentAmount = String.format(Locale.getDefault(), "%.2f", item.getAllocatedAmount());
+        input.setText(currentAmount);
+
         input.setHint("Enter amount");
 
         builder.setView(input);
@@ -320,8 +325,13 @@ public class BudgetFragment extends Fragment implements BudgetAdapter.OnBudgetIt
         builder.setTitle("Edit total budget");
 
         final EditText input = new EditText(getContext());
-        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        input.setText(String.valueOf(currentBudget.getMoney()));
+        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER |
+                android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
+
+        // ✅ FIX: Hiển thị số tiền thật với 2 chữ số thập phân (không làm tròn bằng (int))
+        String currentAmount = String.format(Locale.getDefault(), "%.2f", currentBudget.getMoney());
+        input.setText(currentAmount);
+
         input.setHint("Enter total amount");
 
         builder.setView(input);
